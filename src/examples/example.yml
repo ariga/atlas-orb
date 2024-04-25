@@ -10,4 +10,4 @@ usage:
   workflows:
     use-my-orb:
       jobs:
-        - atlas-orb/<job-name>
+        - atlas-orb/hello
