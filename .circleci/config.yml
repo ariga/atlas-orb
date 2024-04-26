@@ -16,6 +16,7 @@ workflows:
       - orb-tools/pack:
           filters: *filters
       - orb-tools/review:
+          exclude: RC005,RC006 # Our repository is not a public at the moment.
           filters: *filters
       - shellcheck/check:
           filters: *filters
