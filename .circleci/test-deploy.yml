@@ -41,7 +41,7 @@ workflows:
           filters: *release-filters
       - orb-tools/publish:
           orb_name: ariga/atlas-orb
-          vcs_type: << pipeline.project.type >>
+          vcs_type: github
           pub_type: production
           # Ensure this job requires all test jobs and the pack job.
           requires:
