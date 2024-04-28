@@ -20,21 +20,18 @@ release-filters: &release-filters
     only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
 
 jobs:
-  # Create jobs to test the commands of your orbs.
-  # You may want to add additional validation steps to ensure the commands are working as expected.
-  command-test:
-    docker:
-      - image: cimg/base:current
+  command-test-setup:
+    executor: atlas-orb/default
     steps:
       - checkout
-      # Run your orb's commands to validate them.
-      - atlas-orb/greet
+      - atlas-orb/setup:
+          version: "latest"
+
 workflows:
   test-deploy:
     jobs:
-      # Make sure to include "filters: *filters" in every test job you want to run as part of your deployment.
-      # Test your orb's commands in a custom job and test your orb's jobs directly as a part of this workflow.
-      - command-test:
+      - command-test-setup:
+          context: orb-publisher
           filters: *filters
       # The orb must be re-packed for publishing, and saved to the workspace.
       - orb-tools/pack:
@@ -46,6 +43,6 @@ workflows:
           # Ensure this job requires all test jobs and the pack job.
           requires:
             - orb-tools/pack
-            - command-test
+            - command-test-setup
           context: orb-publisher
           filters: *release-filters
