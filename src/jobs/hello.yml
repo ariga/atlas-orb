@@ -1,14 +1,10 @@
 description: >
-  Sample description
-# What will this job do?
+  Simple job that prints the Atlas version.
 
 executor: default
 
-parameters:
-  to:
-    type: string
-    default: "World"
-    description: "Hello to whom?"
 steps:
-  - greet:
-      to: << parameters.to >>
+  - setup
+  - run:
+      name: Print Atlas version
+      command: atlas version

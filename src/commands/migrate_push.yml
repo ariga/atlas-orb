@@ -1,0 +1,71 @@
+description: >
+  This command push the migrations directory to the Atlas Cloud.
+
+parameters:
+  dir_name:
+    type: string
+    description: |
+      The name (slug) of the project in Atlas Cloud.
+  tag:
+    type: string
+    default: ""
+    description: |
+      The tag to apply to the pushed migration directory. By default the current git commit hash is used.
+  working_directory:
+    type: string
+    default: "."
+    description: |
+      The working directory to run from. Defaults to project root.
+  dir:
+    type: string
+    default: ""
+    description: |
+      The URL of the migration directory to push. For example: file://migrations.
+      Read more about [Atlas URLs](https://atlasgo.io/concepts/url)
+  config:
+    type: string
+    default: ''
+    description: |
+      The path to the Atlas configuration file. By default, Atlas will look for a file named `atlas.hcl` in the current directory.
+      For example, `file://config/atlas.hcl`. Learn more about [Atlas configuration files](https://atlasgo.io/atlas-schema/projects).
+  env:
+    type: string
+    default: ''
+    description: |
+      The environment to use from the Atlas configuration file. For example, `dev`.
+  vars:
+    type: string
+    default: ''
+    description: |
+      Extra variables to pass to the Atlas configuration file. For example, `key=value`.
+  dev_url:
+    type: string
+    default: ''
+    description: |
+      The URL of the dev-database to use for analysis. For example: mysql://root:pass@localhost:3306/dev.
+      Read more about [dev-databases](https://atlasgo.io/concepts/dev-database).
+steps:
+  - run:
+      name: Push migrations to Atlas Cloud
+      command: <<include(scripts/migrate-push.sh)>>
+      working_directory: <<parameters.working_directory>>
+      environment:
+        PARAM_DIR_NAME: <<parameters.dir_name>>
+        PARAM_TAG: <<parameters.tag>>
+        PARAM_DIR: <<parameters.dir>>
+        PARAM_CONFIG: <<parameters.config>>
+        PARAM_ENV: <<parameters.env>>
+        PARAM_VARS: <<parameters.vars>>
+        PARAM_DEV_URL: <<parameters.dev_url>>
+  - run:
+      name: Push with latest tag to Atlas Cloud
+      command: <<include(scripts/migrate-push.sh)>>
+      working_directory: <<parameters.working_directory>>
+      environment:
+        PARAM_DIR_NAME: <<parameters.dir_name>>
+        PARAM_TAG: latest
+        PARAM_DIR: <<parameters.dir>>
+        PARAM_CONFIG: <<parameters.config>>
+        PARAM_ENV: <<parameters.env>>
+        PARAM_VARS: <<parameters.vars>>
+        PARAM_DEV_URL: <<parameters.dev_url>>

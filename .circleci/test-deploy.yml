@@ -20,21 +20,58 @@ release-filters: &release-filters
     only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
 
 jobs:
-  # Create jobs to test the commands of your orbs.
-  # You may want to add additional validation steps to ensure the commands are working as expected.
-  command-test:
+  command-test-setup:
+    executor: atlas-orb/default
+    steps:
+      - checkout
+      - atlas-orb/setup:
+          version: "latest"
+  command-test-migrate-push:
     docker:
       - image: cimg/base:current
     steps:
       - checkout
-      # Run your orb's commands to validate them.
-      - atlas-orb/greet
+      - run:
+          name: Mock atlas with echo.sh
+          command:
+            sudo cp ./src/scripts/echo.sh /bin/atlas
+      - atlas-orb/migrate_push:
+          working_directory: testdata
+          dir_name: my-cool-project
+          dir: "file://migrations"
+          tag: << pipeline.git.revision >>
+          env: "circleci-test"
+          config: "file://atlas.hcl"
+          dev_url: postgres://postgres:pass@localhost:5432/test?sslmode=disable
+          vars: |
+            foo=bar baz=qux quux=corge
+      - run:
+          name: Check echo.out for expected output
+          command: |
+            cat /tmp/echo.out
+            # Ensure "migrate push" was called twice with the expected arguments.
+            if [ $(grep -c "migrate push" /tmp/echo.out) -ne 2 ]
+            then
+              echo ERROR: expected two "migrate push" commands >&2
+              exit 1
+            fi
+            # Should include push with the git revision and latest tag.
+            grep -qe "my-cool-project:<< pipeline.git.revision >>" /tmp/echo.out
+            grep -qe "my-cool-project:latest" /tmp/echo.out
+            # Should include the dev URL.
+            grep -qe "--dev-url postgres://postgres:pass@localhost:5432/test?sslmode=disable" /tmp/echo.out
+            # Should include the environment.
+            grep -qe "--env circleci-test" /tmp/echo.out
+            # Should include the config.
+            grep -qe "--config file://atlas.hcl" /tmp/echo.out
+            # Should include the vars.
+            grep -qe "--var foo=bar --var baz=qux --var quux=corge" /tmp/echo.out
 workflows:
   test-deploy:
     jobs:
-      # Make sure to include "filters: *filters" in every test job you want to run as part of your deployment.
-      # Test your orb's commands in a custom job and test your orb's jobs directly as a part of this workflow.
-      - command-test:
+      - command-test-setup:
+          filters: *filters
+      - command-test-migrate-push:
           filters: *filters
       # The orb must be re-packed for publishing, and saved to the workspace.
       - orb-tools/pack:
@@ -46,6 +83,7 @@ workflows:
           # Ensure this job requires all test jobs and the pack job.
           requires:
             - orb-tools/pack
-            - command-test
+            - command-test-setup
+            - command-test-migrate-push
           context: orb-publisher
           filters: *release-filters
