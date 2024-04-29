@@ -7,12 +7,6 @@ CircleCI Orb for atlasgo.io
 
 --->
 
-A project template for Orbs.
-
-This repository is designed to be automatically ingested and modified by the CircleCI CLI's `orb init` command.
-
-_**Edit this area to include a custom title and description.**_
-
 ---
 
 ## Resources
@@ -23,9 +17,10 @@ _**Edit this area to include a custom title and description.**_
 
 ### How to Contribute
 
-We welcome [issues](https://github.com/ariga/atlas-orb/issues) to and [pull requests](https://github.com/ariga/atlas-orb/pulls) against this repository!
+We welcome [issues](https://github.com/ariga/atlas/issues) to and [pull requests](https://github.com/ariga/atlas-orb/pulls) against this repository!
 
 ### How to Publish An Update
+
 1. Merge pull requests with desired changes to the main branch.
     - For the best experience, squash-and-merge and use [Conventional Commit Messages](https://conventionalcommits.org/).
 2. Find the current version of the orb.
