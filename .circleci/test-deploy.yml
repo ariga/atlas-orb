@@ -26,6 +26,15 @@ jobs:
       - checkout
       - atlas-orb/setup:
           version: "latest"
+          cloud_token_env: "ATLAS_TOKEN"
+      - run:
+          name: Check login error message
+          command: |
+            # Expect an error message because we are already logged in.
+            atlas login 2> ./login.stderr || true
+            cat ./login.stderr
+            # Ensure the login error message is printed.
+            grep -qe "Error: already logged in with organization token." ./login.stderr
   command-test-migrate-push:
     docker:
       - image: cimg/base:current
@@ -70,6 +79,7 @@ workflows:
   test-deploy:
     jobs:
       - command-test-setup:
+          context: ariga-atlas
           filters: *filters
       - command-test-migrate-push:
           filters: *filters
