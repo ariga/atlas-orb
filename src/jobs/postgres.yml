@@ -53,6 +53,12 @@ parameters:
     type: string
     default: "cimg/postgres:16.2"
     description: 'The Docker image to use for the PostgreSQL database.'
+  search_path:
+    type: string
+    default: ""
+    description: |
+      The search path to use when running migrations. For example, `public`.
+      Set `search_path` to `public` to run migrations in the public schema (schema scope).
   resource_class:
     type: enum
     enum: ["small", "medium", "medium+", "large", "xlarge", "2xlarge", "2xlarge+"]
@@ -73,12 +79,27 @@ steps:
   - setup:
       version: <<parameters.atlas_version>>
       cloud_token_env: <<parameters.cloud_token_env>>
-  - migrate_push:
-      working_directory: <<parameters.working_directory>>
-      dir_name: <<parameters.dir_name>>
-      dir: <<parameters.dir>>
-      tag: <<parameters.tag>>
-      config: <<parameters.config>>
-      env: <<parameters.env>>
-      vars: <<parameters.vars>>
-      dev_url: postgres://postgres:pass@localhost:5432/postgres?sslmode=disable
+  - when:
+      condition: <<parameters.search_path>>
+      steps:
+        - migrate_push:
+            working_directory: <<parameters.working_directory>>
+            dir_name: <<parameters.dir_name>>
+            dir: <<parameters.dir>>
+            tag: <<parameters.tag>>
+            config: <<parameters.config>>
+            env: <<parameters.env>>
+            vars: <<parameters.vars>>
+            dev_url: postgres://postgres:pass@localhost:5432/postgres?sslmode=disable&search_path=<<parameters.search_path>>
+  - unless:
+      condition: <<parameters.search_path>>
+      steps:
+        - migrate_push:
+            working_directory: <<parameters.working_directory>>
+            dir_name: <<parameters.dir_name>>
+            dir: <<parameters.dir>>
+            tag: <<parameters.tag>>
+            config: <<parameters.config>>
+            env: <<parameters.env>>
+            vars: <<parameters.vars>>
+            dev_url: postgres://postgres:pass@localhost:5432/postgres?sslmode=disable
