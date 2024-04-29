@@ -110,6 +110,7 @@ workflows:
           filters: *filters
           working_directory: testdata
           dir_name: my-cool-project
+          search_path: public
       # The orb must be re-packed for publishing, and saved to the workspace.
       - orb-tools/pack:
           filters: *release-filters
