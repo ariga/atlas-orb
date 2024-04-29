@@ -7,25 +7,25 @@ parameters:
     type: string
     default: "latest"
     description: 'Which version of Atlas to install, in the format of "v0.14.1"'
-  cloud_token:
-    type: string
-    default: ""
-    description: API token to authenticate to an Atlas Cloud organization
-
+  cloud_token_env:
+    type: env_var_name
+    default: ATLAS_TOKEN
+    description: |
+      Environment variable containing the Atlas Cloud token.
+      If provided, the command will authenticate to Atlas Cloud.
+      (e.g. `ATLAS_TOKEN`)
 steps:
   - run:
       name: Install Atlas CLI
       command:
         curl -sSf https://atlasgo.sh | sh
       environment:
-        CI: "true"
         ATLAS_VERSION: <<parameters.version>>
-  - when:
-      condition: << parameters.cloud_token >>
-      steps:
-        run:
-          name: Authenticate to Atlas Cloud
-          command: |
-            atlas login --token <<parameters.cloud_token>>
-          environment:
-            CI: "true"
+  - run:
+      name: Authenticate to Atlas Cloud
+      command: |
+        if [ -z "${<<parameters.cloud_token_env>>}" ]; then
+          echo "No cloud token provided, skipping authentication."
+          exit 0
+        fi
+        atlas login --token ${<<parameters.cloud_token_env>>}

@@ -26,9 +26,17 @@ jobs:
       - checkout
       - atlas-orb/setup:
           version: "latest"
+          cloud_token_env: "ATLAS_TOKEN"
+      - run:
+          name: Check login error message
+          command: |
+            # Expect an error message because we are already logged in.
+            atlas login 2> ./login.stderr || true
+            cat ./login.stderr
+            # Ensure the login error message is printed.
+            grep -qe "Error: already logged in with organization token." ./login.stderr
   command-test-migrate-push:
-    docker:
-      - image: cimg/base:current
+    executor: atlas-orb/default
     steps:
       - checkout
       - run:
@@ -66,13 +74,37 @@ jobs:
             grep -qe "--config file://atlas.hcl" /tmp/echo.out
             # Should include the vars.
             grep -qe "--var foo=bar --var baz=qux --var quux=corge" /tmp/echo.out
+  integration-test:
+    docker:
+      - image: cimg/base:current
+      - image: cimg/postgres:16.2
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: test
+          POSTGRES_PASSWORD: pass
+    steps:
+      - checkout
+      - atlas-orb/setup:
+          version: "latest"
+          cloud_token_env: "ATLAS_TOKEN"
+      - atlas-orb/migrate_push:
+          working_directory: testdata
+          dir_name: my-cool-project
+          dev_url: postgres://postgres:pass@localhost:5432/test?sslmode=disable
 workflows:
   test-deploy:
     jobs:
       - command-test-setup:
+          context: ariga-atlas
           filters: *filters
       - command-test-migrate-push:
           filters: *filters
+      - integration-test:
+          context: ariga-atlas
+          filters: *filters
+          requires:
+            - command-test-setup
+            - command-test-migrate-push
       # The orb must be re-packed for publishing, and saved to the workspace.
       - orb-tools/pack:
           filters: *release-filters
