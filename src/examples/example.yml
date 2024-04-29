@@ -1,13 +1,14 @@
 description: >
-  Sample example description.
-# Provide a use-case based example for using this orb.
-# Everything in the `usage` section will be displayed in the orb registry.
-# Comments are not retained.
+  This example workflow demonstrates how to use the Atlas orb to push a
+  migrations directory of PostgreSQL database to the Atlas Cloud.
+
 usage:
   version: 2.1
   orbs:
-    atlas-orb: ariga/atlas-orb@1.2.3
+    atlas-orb: ariga/atlas-orb@v0
   workflows:
-    use-my-orb:
+    postgres-dir:
       jobs:
-        - atlas-orb/hello
+        - atlas-orb/postgres:
+            context: the-context-has-ATLAS_TOKEN
+            dir_name: "my-cool-project"

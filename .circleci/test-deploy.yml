@@ -105,6 +105,11 @@ workflows:
           requires:
             - command-test-setup
             - command-test-migrate-push
+      - atlas-orb/postgres:
+          context: ariga-atlas
+          filters: *filters
+          working_directory: testdata
+          dir_name: my-cool-project
       # The orb must be re-packed for publishing, and saved to the workspace.
       - orb-tools/pack:
           filters: *release-filters
@@ -117,5 +122,6 @@ workflows:
             - orb-tools/pack
             - command-test-setup
             - command-test-migrate-push
+            - atlas-orb/postgres
           context: orb-publisher
           filters: *release-filters

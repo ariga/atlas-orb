@@ -1,0 +1,84 @@
+description: >
+  This job will push a migrations directory of PostgreSQL database to the Atlas Cloud.
+
+parameters:
+  dir_name:
+    type: string
+    description: |
+      The name of the directory to push to Atlas Cloud.
+  working_directory:
+    type: string
+    default: "."
+    description: |
+      The working directory to run from. Defaults to project root.
+  cloud_token_env:
+    type: env_var_name
+    default: ATLAS_TOKEN
+    description: |
+      Environment variable containing the Atlas Cloud token.
+      If provided, the command will authenticate to Atlas Cloud.
+      (e.g. `ATLAS_TOKEN`)
+  atlas_version:
+    type: string
+    default: "latest"
+    description: 'Which version of Atlas to install, in the format of "v0.21.1"'
+  dir:
+    type: string
+    default: ""
+    description: |
+      The URL of the migration directory to push. For example: file://migrations.
+      Read more about [Atlas URLs](https://atlasgo.io/concepts/url)
+  config:
+    type: string
+    default: ''
+    description: |
+      The path to the Atlas configuration file. By default, Atlas will look for a file named `atlas.hcl` in the current directory.
+      For example, `file://config/atlas.hcl`. Learn more about [Atlas configuration files](https://atlasgo.io/atlas-schema/projects).
+  tag:
+    type: string
+    default: ""
+    description: |
+      The tag to apply to the pushed migration directory. By default the current git commit hash is used.
+  env:
+    type: string
+    default: ''
+    description: |
+      The environment to use from the Atlas configuration file. For example, `dev`.
+  vars:
+    type: string
+    default: ''
+    description: |
+      Extra variables to pass to the Atlas configuration file. For example, `key=value`.
+  postgres_image:
+    type: string
+    default: "cimg/postgres:16.2"
+    description: 'The Docker image to use for the PostgreSQL database.'
+  resource_class:
+    type: enum
+    enum: ["small", "medium", "medium+", "large", "xlarge", "2xlarge", "2xlarge+"]
+    default: "medium"
+    description: Configure the executor resource class
+
+resource_class: <<parameters.resource_class>>
+docker:
+  - image: cimg/base:current
+  - image: <<parameters.postgres_image>>
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: pass
+
+steps:
+  - checkout
+  - setup:
+      version: <<parameters.atlas_version>>
+      cloud_token_env: <<parameters.cloud_token_env>>
+  - migrate_push:
+      working_directory: <<parameters.working_directory>>
+      dir_name: <<parameters.dir_name>>
+      dir: <<parameters.dir>>
+      tag: <<parameters.tag>>
+      config: <<parameters.config>>
+      env: <<parameters.env>>
+      vars: <<parameters.vars>>
+      dev_url: postgres://postgres:pass@localhost:5432/postgres?sslmode=disable
