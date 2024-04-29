@@ -18,7 +18,6 @@ steps:
       command:
         curl -sSf https://atlasgo.sh | sh
       environment:
-        CI: "true"
         ATLAS_VERSION: <<parameters.version>>
   - when:
       condition: << parameters.cloud_token >>
@@ -27,5 +26,3 @@ steps:
           name: Authenticate to Atlas Cloud
           command: |
             atlas login --token <<parameters.cloud_token>>
-          environment:
-            CI: "true"
