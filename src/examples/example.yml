@@ -5,10 +5,24 @@ description: >
 usage:
   version: 2.1
   orbs:
-    atlas-orb: ariga/atlas-orb@0.0.1
+    atlas-orb: ariga/atlas-orb@0.0.3
   workflows:
-    postgres-dir:
+    postgres-example:
       jobs:
-        - atlas-orb/postgres:
-            context: the-context-has-ATLAS_TOKEN
-            dir_name: "my-cool-project"
+        push-dir:
+          docker:
+            - image: cimg/base:current
+            - image: cimg/postgres:16.2
+              environment:
+                POSTGRES_USER: postgres
+                POSTGRES_DB: postgres
+                POSTGRES_PASSWORD: pass
+          context: the-context-has-ATLAS_TOKEN
+          steps:
+            - checkout
+            - atlas-orb/setup:
+                version: "latest"
+                cloud_token_env: "ATLAS_TOKEN"
+            - atlas-orb/migrate_push:
+                dir_name: my-cool-project
+                dev_url: postgres://postgres:pass@localhost:5432/postgres?sslmode=disable
