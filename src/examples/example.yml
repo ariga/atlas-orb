@@ -9,20 +9,20 @@ usage:
   workflows:
     postgres-example:
       jobs:
-        push-dir:
-          docker:
-            - image: cimg/base:current
-            - image: cimg/postgres:16.2
-              environment:
-                POSTGRES_USER: postgres
-                POSTGRES_DB: postgres
-                POSTGRES_PASSWORD: pass
-          context: the-context-has-ATLAS_TOKEN
-          steps:
-            - checkout
-            - atlas-orb/setup:
-                version: "latest"
-                cloud_token_env: "ATLAS_TOKEN"
-            - atlas-orb/migrate_push:
-                dir_name: my-cool-project
-                dev_url: postgres://postgres:pass@localhost:5432/postgres?sslmode=disable
+        - push-dir:
+            context: the-context-has-ATLAS_TOKEN
+            docker:
+              - image: cimg/base:current
+              - image: cimg/postgres:16.2
+                environment:
+                  POSTGRES_USER: postgres
+                  POSTGRES_DB: postgres
+                  POSTGRES_PASSWORD: pass
+            steps:
+              - checkout
+              - atlas-orb/setup:
+                  version: "latest"
+                  cloud_token_env: "ATLAS_TOKEN"
+              - atlas-orb/migrate_push:
+                  dir_name: my-cool-project
+                  dev_url: postgres://postgres:pass@localhost:5432/postgres?sslmode=disable
