@@ -74,6 +74,36 @@ jobs:
             grep -qe "--config file://atlas.hcl" /tmp/echo.out
             # Should include the vars.
             grep -qe "--var foo=bar --var baz=qux --var quux=corge" /tmp/echo.out
+  command-test-migrate-lint:
+      executor: atlas-orb/default
+      steps:
+        - checkout
+        - run:
+            name: Mock atlas with echo.sh
+            command:
+              sudo cp ./src/scripts/echo.sh /bin/atlas
+        - atlas-orb/migrate_lint:
+            working_directory: testdata
+            dir_name: my-cool-project
+            dir: "file://migrations"
+            env: "circleci-test"
+            config: "file://atlas.hcl"
+            dev_url: postgres://postgres:pass@localhost:5432/test?sslmode=disable
+            vars: |
+              foo=bar baz=qux quux=corge
+        - run:
+            name: Check echo.out for expected output
+            command: |
+              # Should include push with the git revision and latest tag.
+              grep -qe "--base atlas://my-cool-project" /tmp/echo.out
+              # Should include the dev URL.
+              grep -qe "--dev-url postgres://postgres:pass@localhost:5432/test?sslmode=disable" /tmp/echo.out
+              # Should include the environment.
+              grep -qe "--env circleci-test" /tmp/echo.out
+              # Should include the config.
+              grep -qe "--config file://atlas.hcl" /tmp/echo.out
+              # Should include the vars.
+              grep -qe "--var foo=bar --var baz=qux --var quux=corge" /tmp/echo.out
   integration-test:
     docker:
       - image: cimg/base:current
@@ -87,6 +117,10 @@ jobs:
       - atlas-orb/setup:
           version: "latest"
           cloud_token_env: "ATLAS_TOKEN"
+      - atlas-orb/migrate_lint:
+          working_directory: testdata
+          dir_name: my-cool-project
+          dev_url: postgres://postgres:pass@localhost:5432/test?sslmode=disable
       - atlas-orb/migrate_push:
           working_directory: testdata
           dir_name: my-cool-project
@@ -99,12 +133,15 @@ workflows:
           filters: *filters
       - command-test-migrate-push:
           filters: *filters
+      - command-test-migrate-lint:
+          filters: *filters
       - integration-test:
           context: ariga-atlas
           filters: *filters
           requires:
             - command-test-setup
             - command-test-migrate-push
+            - command-test-migrate-lint
       # The orb must be re-packed for publishing, and saved to the workspace.
       - orb-tools/pack:
           filters: *release-filters
@@ -117,5 +154,6 @@ workflows:
             - orb-tools/pack
             - command-test-setup
             - command-test-migrate-push
+            - command-test-migrate-lint
           context: orb-publisher
           filters: *release-filters
