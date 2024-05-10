@@ -39,15 +39,31 @@ parameters:
     default: ''
     description: |
       The environment to use from the Atlas configuration file. For example, `dev`.
+  repo_url:
+    type: string
+    default: ''
+    description: |
+      Environment variable containing the repository URL.
+      If provided, linting results will be posted to the repository.
+      (e.g. `CIRCLE_REPOSITORY_URL`)
+  github_token:
+    type: env_var_name
+    default: GITHUB_TOKEN
+    description: |
+      Environment variable containing the GitHub token.
+      If provided, the command will authenticate to GitHub.
+      (e.g. `GITHUB_TOKEN`)
 steps:
   - run:
       name: Lint migrations to Atlas Cloud
-      command: <<include(scripts/migrate-lint.sh)>>
+      command: atlasaction --action migrate/lint
       working_directory: <<parameters.working_directory>>
       environment:
-        PARAM_DIR_NAME: <<parameters.dir_name>>
-        PARAM_DIR: <<parameters.dir>>
-        PARAM_CONFIG: <<parameters.config>>
-        PARAM_ENV: <<parameters.env>>
-        PARAM_VARS: <<parameters.vars>>
-        PARAM_DEV_URL: <<parameters.dev_url>>
+        INPUT_DIR_NAME: <<parameters.dir_name>>
+        INPUT_DIR: <<parameters.dir>>
+        INPUT_CONFIG: <<parameters.config>>
+        INPUT_ENV: <<parameters.env>>
+        INPUT_VARS: <<parameters.vars>>
+        INPUT_DEV_URL: <<parameters.dev_url>>
+        CIRCLE_REPOSITORY_URL: <<parameters.repo_url>>
+        GITHUB_TOKEN: <<parameters.github_token>>
