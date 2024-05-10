@@ -41,8 +41,7 @@ jobs:
       - checkout
       - run:
           name: Mock atlas with echo.sh
-          command:
-            sudo cp ./src/scripts/echo.sh /bin/atlas
+          command: sudo cp ./src/scripts/echo.sh /bin/atlas
       - atlas-orb/migrate_push:
           working_directory: testdata
           dir_name: my-cool-project
@@ -80,8 +79,9 @@ jobs:
         - checkout
         - run:
             name: Mock atlas with echo.sh
-            command:
+            command: |
               sudo cp ./src/scripts/echo.sh /bin/atlas
+              sudo cp ./src/scripts/echo.sh /bin/atlasaction
         - atlas-orb/migrate_lint:
             working_directory: testdata
             dir_name: my-cool-project
@@ -94,16 +94,19 @@ jobs:
         - run:
             name: Check echo.out for expected output
             command: |
-              # Should include push with the git revision and latest tag.
-              grep -qe "--base atlas://my-cool-project" /tmp/echo.out
-              # Should include the dev URL.
-              grep -qe "--dev-url postgres://postgres:pass@localhost:5432/test?sslmode=disable" /tmp/echo.out
-              # Should include the environment.
-              grep -qe "--env circleci-test" /tmp/echo.out
-              # Should include the config.
-              grep -qe "--config file://atlas.hcl" /tmp/echo.out
-              # Should include the vars.
-              grep -qe "--var foo=bar --var baz=qux --var quux=corge" /tmp/echo.out
+              grep -qe "--action migrate/lint" /tmp/echo.out
+              # check dir_name should be set in the environment
+              grep -qe "INPUT_DIR_NAME=my-cool-project" /tmp/env.out
+              # check dir should be set in the environment
+              grep -qe "INPUT_DIR=file://migrations" /tmp/env.out
+              # check dev_url should be set in the environment
+              grep -qe "INPUT_DEV_URL=postgres://postgres:pass@localhost:5432/test?sslmode=disable" /tmp/env.out
+              # check env should be set in the environment
+              grep -qe "INPUT_ENV=circleci-test" /tmp/env.out
+              # check config should be set in the environment
+              grep -qe "INPUT_CONFIG=file://atlas.hcl" /tmp/env.out
+              # check vars should be set in the environment
+              grep -qe "INPUT_VARS=foo=bar baz=qux quux=corge" /tmp/env.out
   integration-test:
     docker:
       - image: cimg/base:current
@@ -121,10 +124,42 @@ jobs:
           working_directory: testdata
           dir_name: my-cool-project
           dev_url: postgres://postgres:pass@localhost:5432/test?sslmode=disable
+          repo_url: "https://github.com/ariga/atlas-orb"
       - atlas-orb/migrate_push:
           working_directory: testdata
           dir_name: my-cool-project
           dev_url: postgres://postgres:pass@localhost:5432/test?sslmode=disable
+  integration-test-lint:
+    docker:
+      - image: cimg/base:current
+    steps:
+      - checkout
+      - atlas-orb/setup:
+          version: "latest"
+          cloud_token_env: "ATLAS_TOKEN"
+      - run:
+          name: Run atlasaction with migrate-lint-fail.sh
+          command: |
+            sudo cp /bin/atlasaction /bin/atlasaction-copy
+            sudo cp ./src/scripts/migrate-lint-fail.sh /bin/atlasaction
+      - atlas-orb/migrate_lint:
+          working_directory: testdata
+          dir_name: test-dir-sqlite
+          dir: "file://sqlite-broken-file"
+          dev_url: "sqlite://file.db?mode=memory"
+          repo_url: "https://github.com/ariga/atlas-orb"
+      - atlas-orb/migrate_lint:
+          working_directory: testdata
+          dir_name: test-dir-sqlite
+          dir: "file://sqlite-destructive"
+          dev_url: "sqlite://file.db?mode=memory"
+          repo_url: "https://github.com/ariga/atlas-orb"
+      - atlas-orb/migrate_lint:
+          working_directory: testdata
+          dir_name: test-dir-sqlite
+          dir: "file://sqlite-wrong-sum"
+          dev_url: "sqlite://file.db?mode=memory"
+          repo_url: "https://github.com/ariga/atlas-orb"
 workflows:
   test-deploy:
     jobs:
@@ -136,6 +171,13 @@ workflows:
       - command-test-migrate-lint:
           filters: *filters
       - integration-test:
+          context: ariga-atlas
+          filters: *filters
+          requires:
+            - command-test-setup
+            - command-test-migrate-push
+            - command-test-migrate-lint
+      - integration-test-lint:
           context: ariga-atlas
           filters: *filters
           requires:
