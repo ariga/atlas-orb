@@ -142,6 +142,7 @@ jobs:
           dir_name: test-dir-sqlite
           dir: "file://sqlite-broken-file"
           repo_url: "https://github.com/ariga/atlas-orb"
+          github_token_env: "GITHUB_TOKEN"
       - atlas-orb/migrate_lint:
           working_directory: testdata
           dir_name: test-dir-sqlite
