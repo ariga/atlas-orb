@@ -25,7 +25,7 @@ steps:
       name: Download Atlas Action
       command: |
         # Download the binary
-        curl -o atlasaction https://github.com/datdao/atlas-demo/files/15318115/atlasaction-linux.txt
+        curl -o atlasaction https://release.ariga.io/atlas-action/atlas-action-v1
         # Install the binary in path
         sudo install -o root -g root -m 0755 ./atlasaction /usr/local/bin/atlasaction
   - run:
