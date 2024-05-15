@@ -125,6 +125,7 @@ jobs:
           dir_name: my-cool-project
           dev_url: postgres://postgres:pass@localhost:5432/test?sslmode=disable
           repo_url: "https://github.com/ariga/atlas-orb"
+          github_token: "GITHUB_TOKEN"
       - atlas-orb/migrate_push:
           working_directory: testdata
           dir_name: my-cool-project
