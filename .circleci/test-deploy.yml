@@ -129,6 +129,34 @@ jobs:
           working_directory: testdata
           dir_name: my-cool-project
           dev_url: postgres://postgres:pass@localhost:5432/test?sslmode=disable
+  integration-test-lint:
+    docker:
+      - image: cimg/base:current
+    steps:
+      - checkout
+      - atlas-orb/setup:
+          version: "latest"
+          cloud_token_env: "ATLAS_TOKEN"
+      - atlas-orb/migrate_lint:
+          working_directory: testdata
+          dir_name: test-dir-sqlite
+          dir: "file://atlasaction/testdata/sqlite-broken-file"
+          repo_url: "https://github.com/ariga/atlas-orb"
+      - atlas-orb/migrate_lint:
+          working_directory: testdata
+          dir_name: test-dir-sqlite
+          dir: "file://atlasaction/testdata/sqlite-destructive"
+          repo_url: "https://github.com/ariga/atlas-orb"
+      - atlas-orb/migrate_lint:
+          working_directory: testdata
+          dir_name: test-dir-sqlite
+          dir: "file://atlasaction/testdata/sqlite-with-diagnostics"
+          repo_url: "https://github.com/ariga/atlas-orb"
+      - atlas-orb/migrate_lint:
+          working_directory: testdata
+          dir_name: test-dir-sqlite
+          dir: "file://atlasaction/testdata/sqlite-wrong-sum"
+          repo_url: "https://github.com/ariga/atlas-orb"
 workflows:
   test-deploy:
     jobs:
@@ -140,6 +168,13 @@ workflows:
       - command-test-migrate-lint:
           filters: *filters
       - integration-test:
+          context: ariga-atlas
+          filters: *filters
+          requires:
+            - command-test-setup
+            - command-test-migrate-push
+            - command-test-migrate-lint
+      - integration-test-lint:
           context: ariga-atlas
           filters: *filters
           requires:
