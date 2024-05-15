@@ -140,22 +140,22 @@ jobs:
       - atlas-orb/migrate_lint:
           working_directory: testdata
           dir_name: test-dir-sqlite
-          dir: "file://atlasaction/testdata/sqlite-broken-file"
+          dir: "file://sqlite-broken-file"
           repo_url: "https://github.com/ariga/atlas-orb"
       - atlas-orb/migrate_lint:
           working_directory: testdata
           dir_name: test-dir-sqlite
-          dir: "file://atlasaction/testdata/sqlite-destructive"
+          dir: "file://sqlite-destructive"
           repo_url: "https://github.com/ariga/atlas-orb"
       - atlas-orb/migrate_lint:
           working_directory: testdata
           dir_name: test-dir-sqlite
-          dir: "file://atlasaction/testdata/sqlite-with-diagnostics"
+          dir: "file://sqlite-with-diagnostics"
           repo_url: "https://github.com/ariga/atlas-orb"
       - atlas-orb/migrate_lint:
           working_directory: testdata
           dir_name: test-dir-sqlite
-          dir: "file://atlasaction/testdata/sqlite-wrong-sum"
+          dir: "file://sqlite-wrong-sum"
           repo_url: "https://github.com/ariga/atlas-orb"
 workflows:
   test-deploy:
