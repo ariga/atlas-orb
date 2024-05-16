@@ -12,18 +12,49 @@ filters: &filters
   tags:
     only: /.*/
 
+jobs:
+  test-sqlite-destructive:
+    docker:
+      - image: cimg/base:current
+    steps:
+      - checkout
+      - atlas-orb/setup:
+          version: "latest"
+      - atlas-orb/migrate_lint:
+          working_directory: testdata
+          dir_name: test-dir-sqlite
+          dir: "file://sqlite-destructive"
+          dev_url: "sqlite://file.db?mode=memory"
+  
+  test-sqlite-broken-file:
+    docker:
+      - image: cimg/base:current
+    steps:
+      - checkout
+      - atlas-orb/setup:
+          version: "latest"
+      - atlas-orb/migrate_lint:
+          working_directory: testdata
+          dir_name: test-dir-sqlite
+          dir: "file://sqlite-broken-file"
+          dev_url: "sqlite://file.db?mode=memory"
+  
+  test-sqlite-wrong-sum:
+    docker:
+      - image: cimg/base:current
+    steps:
+      - checkout
+      - atlas-orb/setup:
+          version: "latest"
+      - atlas-orb/migrate_lint:
+          working_directory: testdata
+          dir_name: test-dir-sqlite
+          dir: "file://sqlite-wrong-sum"
+          dev_url: "sqlite://file.db?mode=memory"
+
 workflows:
   example:
     jobs:
-      - test-dir-sqlite:
+      - test-sqlite-destructive:
           filters: *filters
-          steps:
-            - checkout
-            - atlas-orb/setup:
-                version: "latest"
-            - atlas-orb/migrate_lint:
-                working_directory: testdata
-                dir_name: test-dir-sqlite
-                dir: "file://sqlite-destructive"
-                dev_url: "sqlite://file.db?mode=memory"
   
