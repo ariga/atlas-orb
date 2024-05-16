@@ -12,6 +12,13 @@ filters: &filters
   tags:
     only: /.*/
 
+workflows:
+  example:
+    jobs:
+      - test-sqlite-broken-file:
+          context: ariga-atlas
+          filters: *filters
+
 jobs:
   test-sqlite-destructive:
     docker:
@@ -51,11 +58,3 @@ jobs:
           dir_name: test-dir-sqlite
           dir: "file://sqlite-wrong-sum"
           dev_url: "sqlite://file.db?mode=memory"
-
-workflows:
-  example:
-    jobs:
-      - test-sqlite-broken-file:
-          context: ariga-atlas
-          filters: *filters
-  
