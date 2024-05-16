@@ -1,0 +1,29 @@
+version: 2.1
+orbs:
+  # Your orb will be automatically injected here during the pipeline.
+  # Reference your orb's jobs and commands below as they will exist when built.
+  orb-tools: circleci/orb-tools@12.0
+  # The orb definition is intentionally not included here. It will be injected into the pipeline.
+  atlas-orb: {}
+
+# Use this tag to ensure test jobs always run,
+# even though the downstream publish job will only run on release tags.
+filters: &filters
+  tags:
+    only: /.*/
+
+workflows:
+  example:
+    jobs:
+      - test-dir-sqlite:
+          filters: *filters
+          steps:
+            - checkout
+            - atlas-orb/setup:
+                version: "latest"
+            - atlas-orb/migrate_lint:
+                working_directory: testdata
+                dir_name: test-dir-sqlite
+                dir: "file://sqlite-destructive"
+                dev_url: "sqlite://file.db?mode=memory"
+  

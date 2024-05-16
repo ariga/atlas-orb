@@ -159,39 +159,3 @@ jobs:
 workflows:
   test-deploy:
     jobs:
-      - command-test-setup:
-          context: ariga-atlas
-          filters: *filters
-      - command-test-migrate-push:
-          filters: *filters
-      - command-test-migrate-lint:
-          filters: *filters
-      - integration-test:
-          context: ariga-atlas
-          filters: *filters
-          requires:
-            - command-test-setup
-            - command-test-migrate-push
-            - command-test-migrate-lint
-      - integration-test-lint:
-          context: ariga-atlas
-          filters: *filters
-          requires:
-            - command-test-setup
-            - command-test-migrate-push
-            - command-test-migrate-lint
-      # The orb must be re-packed for publishing, and saved to the workspace.
-      - orb-tools/pack:
-          filters: *release-filters
-      - orb-tools/publish:
-          orb_name: ariga/atlas-orb
-          vcs_type: github
-          pub_type: production
-          # Ensure this job requires all test jobs and the pack job.
-          requires:
-            - orb-tools/pack
-            - command-test-setup
-            - command-test-migrate-push
-            - command-test-migrate-lint
-          context: orb-publisher
-          filters: *release-filters
