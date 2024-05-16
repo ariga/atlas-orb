@@ -124,7 +124,6 @@ jobs:
           working_directory: testdata
           dir_name: my-cool-project
           dev_url: postgres://postgres:pass@localhost:5432/test?sslmode=disable
-          repo_url: "https://github.com/ariga/atlas-orb"
       - atlas-orb/migrate_push:
           working_directory: testdata
           dir_name: my-cool-project
@@ -147,19 +146,16 @@ jobs:
           dir_name: test-dir-sqlite
           dir: "file://sqlite-broken-file"
           dev_url: "sqlite://file.db?mode=memory"
-          repo_url: "https://github.com/ariga/atlas-orb"
       - atlas-orb/migrate_lint:
           working_directory: testdata
           dir_name: test-dir-sqlite
           dir: "file://sqlite-destructive"
           dev_url: "sqlite://file.db?mode=memory"
-          repo_url: "https://github.com/ariga/atlas-orb"
       - atlas-orb/migrate_lint:
           working_directory: testdata
           dir_name: test-dir-sqlite
           dir: "file://sqlite-wrong-sum"
           dev_url: "sqlite://file.db?mode=memory"
-          repo_url: "https://github.com/ariga/atlas-orb"
 workflows:
   test-deploy:
     jobs:

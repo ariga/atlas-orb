@@ -43,9 +43,8 @@ parameters:
     type: string
     default: ''
     description: |
-      Environment variable containing the repository URL.
-      If provided, linting results will be posted to the repository.
-      (e.g. `CIRCLE_REPOSITORY_URL`)
+      The URL of the repository. If provided, linting results will be posted to the repository.
+      Otherwise, the repo url will based on your token type.
   github_token_env:
     type: env_var_name
     default: GITHUB_TOKEN
