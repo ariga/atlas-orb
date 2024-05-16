@@ -140,7 +140,7 @@ jobs:
       - run:
           name: Run atlasaction with migrate-lint-fail.sh
           command: |
-            sudo cp /bin/atlasaction /bin/atlasaction-copy
+            sudo cp /bin/atlasaction /bin/atlasaction-origin
             sudo cp ./src/scripts/migrate-lint-fail.sh /bin/atlasaction
       - atlas-orb/migrate_lint:
           working_directory: testdata

@@ -2,7 +2,7 @@
 
 # execute the command and check the exit code is 1
 # testing purpose only, use for integration tests
-atlasaction-copy --action migrate/lint
+atlasaction-origin --action migrate/lint
 if [ $? -ne 1 ]; then
   echo "Expected exit code 1, got $?"
   exit 1
