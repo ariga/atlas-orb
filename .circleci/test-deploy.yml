@@ -15,7 +15,7 @@ filters: &filters
 workflows:
   example:
     jobs:
-      - test-sqlite-broken-file:
+      - test-sqlite-destructive:
           context: ariga-atlas
           filters: *filters
 
