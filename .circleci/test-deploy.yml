@@ -55,7 +55,7 @@ jobs:
 workflows:
   example:
     jobs:
-      - test-sqlite-destructive:
+      - test-sqlite-broken-file:
           context: ariga-atlas
           filters: *filters
   
