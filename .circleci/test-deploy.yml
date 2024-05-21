@@ -115,6 +115,8 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_DB: test
           POSTGRES_PASSWORD: pass
+    environment:
+      GITHUB_REPOSITORY: "ariga/atlas-orb"
     steps:
       - checkout
       - atlas-orb/setup:
@@ -131,6 +133,8 @@ jobs:
   integration-test-lint:
     docker:
       - image: cimg/base:current
+    environment:
+      GITHUB_REPOSITORY: "ariga/atlas-orb"
     steps:
       - checkout
       - atlas-orb/setup:

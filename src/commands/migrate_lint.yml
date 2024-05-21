@@ -39,12 +39,11 @@ parameters:
     default: ''
     description: |
       The environment to use from the Atlas configuration file. For example, `dev`.
-  repo_url:
-    type: string
-    default: ''
+  github_repo_env:
+    type: env_var_name
+    default: GITHUB_REPOSITORY
     description: |
-      The URL of the repository. If provided, linting results will be posted to the repository.
-      Otherwise, the repo url will based on your token type.
+      The repository name that linting results will be posted to.
   github_token_env:
     type: env_var_name
     default: GITHUB_TOKEN
@@ -64,9 +63,9 @@ steps:
         INPUT_VARS: <<parameters.vars>>
         INPUT_DEV_URL: <<parameters.dev_url>>
       command: |
-        # replace CIRCLE_REPOSITORY_URL with the repo_url if provided
-        if [ -n "<<parameters.repo_url>>" ]; then
-          CIRCLE_REPOSITORY_URL=<<parameters.repo_url>>
+        # replace GITHUB_REPOSITORY with the github_repo_env if provided
+        if [ -n "${<<parameters.github_repo_env>>}" ]; then
+          GITHUB_REPOSITORY=${<<parameters.github_repo_env>>}
         fi
         # replace GITHUB_TOKEN with the github_token_env if provided
         if [ -n "${<<parameters.github_token_env>>}" ]; then
