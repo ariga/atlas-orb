@@ -22,6 +22,13 @@ steps:
       environment:
         ATLAS_VERSION: <<parameters.version>>
   - run:
+      name: Download Atlas Action
+      command: |
+        # Download the binary
+        curl -o atlasaction https://release.ariga.io/atlas-action/atlas-action-v1
+        # Install the binary in path
+        sudo install -o root -g root -m 0755 ./atlasaction /bin/atlasaction
+  - run:
       name: Authenticate to Atlas Cloud
       command: |
         if [ -z "${<<parameters.cloud_token_env>>}" ]; then

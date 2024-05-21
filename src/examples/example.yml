@@ -23,6 +23,10 @@ usage:
               - atlas-orb/setup:
                   version: "latest"
                   cloud_token_env: "ATLAS_TOKEN"
+              - atlas-orb/migrate_lint:
+                  dir_name: my-cool-project
+                  dev_url: "postgres://postgres:pass@localhost:5432/postgres?sslmode=disable"
+                  github_token_env: "GITHUB_TOKEN"
               - atlas-orb/migrate_push:
                   dir_name: my-cool-project
                   dev_url: postgres://postgres:pass@localhost:5432/postgres?sslmode=disable
