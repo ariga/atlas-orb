@@ -1,32 +1,30 @@
-description: >
-  This example workflow demonstrates how to use the Atlas orb to push a
-  migrations directory of PostgreSQL database to the Atlas Cloud.
-
-usage:
-  version: 2.1
-  orbs:
-    atlas-orb: ariga/atlas-orb@0.0.3
-  workflows:
-    postgres-example:
-      jobs:
-        - push-dir:
-            context: the-context-has-ATLAS_TOKEN
-            docker:
-              - image: cimg/base:current
-              - image: cimg/postgres:16.2
-                environment:
-                  POSTGRES_USER: postgres
-                  POSTGRES_DB: postgres
-                  POSTGRES_PASSWORD: pass
-            steps:
-              - checkout
-              - atlas-orb/setup:
-                  version: "latest"
-                  cloud_token_env: "ATLAS_TOKEN"
-              - atlas-orb/migrate_lint:
-                  dir_name: my-cool-project
-                  dev_url: "postgres://postgres:pass@localhost:5432/postgres?sslmode=disable"
-                  github_token_env: "GITHUB_TOKEN"
-              - atlas-orb/migrate_push:
-                  dir_name: my-cool-project
-                  dev_url: postgres://postgres:pass@localhost:5432/postgres?sslmode=disable
+version: 2.1
+orbs:
+  atlas-orb: ariga/atlas-orb@0.0.6
+jobs:
+  push-dir:
+    docker:
+      - image: cimg/base:current
+      - image: cimg/postgres:16.2
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+          POSTGRES_PASSWORD: pass
+    steps:
+      - checkout
+      - atlas-orb/setup:
+          version: "latest"
+          cloud_token_env: "ATLAS_TOKEN"
+      - atlas-orb/migrate_lint:
+          dir_name: my-cool-project
+          dev_url: "postgres://postgres:pass@localhost:5432/postgres?sslmode=disable"
+          repo: "ariga/atlas-orb"
+          github_token_env: "GITHUB_TOKEN"
+      - atlas-orb/migrate_push:
+          dir_name: my-cool-project
+          dev_url: postgres://postgres:pass@localhost:5432/postgres?sslmode=disable
+workflows:
+  postgres-example:
+    jobs:
+      - push-dir:
+          context: the-context-has-ATLAS_TOKEN
