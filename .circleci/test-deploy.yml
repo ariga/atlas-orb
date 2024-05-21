@@ -115,6 +115,8 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_DB: test
           POSTGRES_PASSWORD: pass
+    environment:
+      GITHUB_REPOSITORY: "ariga/atlas-orb"
     steps:
       - checkout
       - atlas-orb/setup:
@@ -124,7 +126,6 @@ jobs:
           working_directory: testdata
           dir_name: my-cool-project
           dev_url: postgres://postgres:pass@localhost:5432/test?sslmode=disable
-          repo: "ariga/atlas-orb"
       - atlas-orb/migrate_push:
           working_directory: testdata
           dir_name: my-cool-project
@@ -132,6 +133,8 @@ jobs:
   integration-test-lint:
     docker:
       - image: cimg/base:current
+    environment:
+      GITHUB_REPOSITORY: "ariga/atlas-orb"
     steps:
       - checkout
       - atlas-orb/setup:
@@ -147,19 +150,16 @@ jobs:
           dir_name: test-dir-sqlite
           dir: "file://sqlite-broken-file"
           dev_url: "sqlite://file.db?mode=memory"
-          repo: "ariga/atlas-orb"
       - atlas-orb/migrate_lint:
           working_directory: testdata
           dir_name: test-dir-sqlite
           dir: "file://sqlite-destructive"
           dev_url: "sqlite://file.db?mode=memory"
-          repo: "ariga/atlas-orb"
       - atlas-orb/migrate_lint:
           working_directory: testdata
           dir_name: test-dir-sqlite
           dir: "file://sqlite-wrong-sum"
           dev_url: "sqlite://file.db?mode=memory"
-          repo: "ariga/atlas-orb"
 workflows:
   test-deploy:
     jobs:
