@@ -53,7 +53,7 @@ parameters:
       (e.g. `GITHUB_TOKEN`)
 steps:
   - run:
-      name: Lint migrations to Atlas Cloud
+      name: Lint migrations and report results to Atlas Cloud
       working_directory: <<parameters.working_directory>>
       environment:
         INPUT_DIR_NAME: <<parameters.dir_name>>
