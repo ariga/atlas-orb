@@ -44,28 +44,58 @@ parameters:
     description: |
       The URL of the dev-database to use for analysis. For example: mysql://root:pass@localhost:3306/dev.
       Read more about [dev-databases](https://atlasgo.io/concepts/dev-database).
+  github_repo_env:
+    type: env_var_name
+    default: GITHUB_REPOSITORY
+    description: |
+      The repository name that linting results will be posted to.
+  github_token_env:
+    type: env_var_name
+    default: GITHUB_TOKEN
+    description: |
+      Environment variable containing the GitHub token.
+      If provided, the command will authenticate to GitHub.
+      (e.g. `GITHUB_TOKEN`)
 steps:
   - run:
       name: Push migrations to Atlas Cloud
-      command: <<include(scripts/migrate-push.sh)>>
+      command: |
+        # replace GITHUB_REPOSITORY with the github_repo_env if provided
+        if [ -n "${<<parameters.github_repo_env>>}" ]; then
+          GITHUB_REPOSITORY=${<<parameters.github_repo_env>>}
+        fi
+        # replace GITHUB_TOKEN with the github_token_env if provided
+        if [ -n "${<<parameters.github_token_env>>}" ]; then
+          GITHUB_TOKEN=${<<parameters.github_token_env>>}
+        fi
+        atlasaction --action migrate/push
       working_directory: <<parameters.working_directory>>
       environment:
-        PARAM_DIR_NAME: <<parameters.dir_name>>
-        PARAM_TAG: <<parameters.tag>>
-        PARAM_DIR: <<parameters.dir>>
-        PARAM_CONFIG: <<parameters.config>>
-        PARAM_ENV: <<parameters.env>>
-        PARAM_VARS: <<parameters.vars>>
-        PARAM_DEV_URL: <<parameters.dev_url>>
+        INPUT_DIR_NAME: <<parameters.dir_name>>
+        INPUT_TAG: <<parameters.tag>>
+        INPUT_DIR: <<parameters.dir>>
+        INPUT_CONFIG: <<parameters.config>>
+        INPUT_ENV: <<parameters.env>>
+        INPUT_VARS: <<parameters.vars>>
+        INPUT_DEV_URL: <<parameters.dev_url>>
   - run:
       name: Push with latest tag to Atlas Cloud
-      command: <<include(scripts/migrate-push.sh)>>
+      command: |
+        # replace GITHUB_REPOSITORY with the github_repo_env if provided
+        if [ -n "${<<parameters.github_repo_env>>}" ]; then
+          GITHUB_REPOSITORY=${<<parameters.github_repo_env>>}
+        fi
+        # replace GITHUB_TOKEN with the github_token_env if provided
+        if [ -n "${<<parameters.github_token_env>>}" ]; then
+          GITHUB_TOKEN=${<<parameters.github_token_env>>}
+        fi
+        atlasaction --action migrate/push
       working_directory: <<parameters.working_directory>>
       environment:
-        PARAM_DIR_NAME: <<parameters.dir_name>>
-        PARAM_TAG: latest
-        PARAM_DIR: <<parameters.dir>>
-        PARAM_CONFIG: <<parameters.config>>
-        PARAM_ENV: <<parameters.env>>
-        PARAM_VARS: <<parameters.vars>>
-        PARAM_DEV_URL: <<parameters.dev_url>>
+        INPUT_DIR_NAME: <<parameters.dir_name>>
+        INPUT_TAG: latest
+        INPUT_DIR: <<parameters.dir>>
+        INPUT_CONFIG: <<parameters.config>>
+        INPUT_ENV: <<parameters.env>>
+        INPUT_VARS: <<parameters.vars>>
+        INPUT_DEV_URL: <<parameters.dev_url>>
