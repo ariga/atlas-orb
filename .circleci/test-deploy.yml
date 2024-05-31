@@ -107,6 +107,39 @@ jobs:
               grep -qe "INPUT_CONFIG=file://atlas.hcl" /tmp/env.out
               # check vars should be set in the environment
               grep -qe "INPUT_VARS=foo=bar baz=qux quux=corge" /tmp/env.out
+  command-test-migrate-apply:
+    executor: atlas-orb/default
+    steps:
+      - checkout
+      - run:
+          name: Mock atlas with echo.sh
+          command: |
+            sudo cp ./src/scripts/echo.sh /bin/atlas
+            sudo cp ./src/scripts/echo.sh /bin/atlasaction
+      - atlas-orb/migrate_apply:
+          working_directory: testdata
+          dir: "file://migrations"
+          env: "circleci-test"
+          config: "file://atlas.hcl"
+          url: postgres://postgres:pass@localhost:5432/test?sslmode=disable
+          dry_run: true
+          vars: |
+            foo=bar baz=qux quux=corge
+      - run:
+          name: Check echo.out for expected output
+          command: |
+            # check dir should be set in the environment
+            grep -qe "INPUT_DIR=file://migrations" /tmp/env.out
+            # check dev_url should be set in the environment
+            grep -qe "INPUT_URL=postgres://postgres:pass@localhost:5432/test?sslmode=disable" /tmp/env.out
+            # check env should be set in the environment
+            grep -qe "INPUT_ENV=circleci-test" /tmp/env.out
+            # check dry_run should be set in the environment
+            grep -qe "INPUT_DRY_RUN=1" /tmp/env.out
+            # check config should be set in the environment
+            grep -qe "INPUT_CONFIG=file://atlas.hcl" /tmp/env.out
+            # check vars should be set in the environment
+            grep -qe "INPUT_VARS=foo=bar baz=qux quux=corge" /tmp/env.out
   integration-test:
     docker:
       - image: cimg/base:current
@@ -128,6 +161,10 @@ jobs:
           working_directory: testdata
           dir_name: my-cool-project
           dev_url: postgres://postgres:pass@localhost:5432/test?sslmode=disable
+      - atlas-orb/migrate_apply:
+          working_directory: testdata
+          dir: atlas://my-cool-project
+          url: postgres://postgres:pass@localhost:5432/test?sslmode=disable
   integration-test-gh:
     docker:
       - image: cimg/base:current
@@ -151,6 +188,10 @@ jobs:
           working_directory: testdata
           dir_name: my-cool-project
           dev_url: postgres://postgres:pass@localhost:5432/test?sslmode=disable
+      - atlas-orb/migrate_apply:
+          working_directory: testdata
+          dir: atlas://my-cool-project
+          url: postgres://postgres:pass@localhost:5432/test?sslmode=disable
   integration-test-gh-lint:
     docker:
       - image: cimg/base:current
@@ -191,6 +232,8 @@ workflows:
           filters: *filters
       - command-test-migrate-lint:
           filters: *filters
+      - command-test-migrate-apply:
+          filters: *filters
       - integration-test:
           context: ariga-atlas
           filters: *filters
@@ -198,6 +241,7 @@ workflows:
             - command-test-setup
             - command-test-migrate-push
             - command-test-migrate-lint
+            - command-test-migrate-apply
       - integration-test-gh:
           context: ariga-atlas-gh
           filters: *filters
@@ -205,6 +249,7 @@ workflows:
             - command-test-setup
             - command-test-migrate-push
             - command-test-migrate-lint
+            - command-test-migrate-apply
       - integration-test-gh-lint:
           context: ariga-atlas-gh
           filters: *filters
@@ -212,6 +257,7 @@ workflows:
             - command-test-setup
             - command-test-migrate-push
             - command-test-migrate-lint
+            - command-test-migrate-apply
       # The orb must be re-packed for publishing, and saved to the workspace.
       - orb-tools/pack:
           filters: *release-filters
@@ -225,5 +271,6 @@ workflows:
             - command-test-setup
             - command-test-migrate-push
             - command-test-migrate-lint
+            - command-test-migrate-apply
           context: orb-publisher
           filters: *release-filters
