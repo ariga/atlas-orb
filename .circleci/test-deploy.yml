@@ -140,6 +140,53 @@ jobs:
             grep -qe "INPUT_CONFIG=file://atlas.hcl" /tmp/env.out
             # check vars should be set in the environment
             grep -qe "INPUT_VARS=foo=bar baz=qux quux=corge" /tmp/env.out
+  command-test-migrate-down:
+    executor: atlas-orb/default
+    steps:
+      - checkout
+      - run:
+          name: Mock atlas with echo.sh
+          command: |
+            sudo cp ./src/scripts/echo.sh /bin/atlas
+            sudo cp ./src/scripts/echo.sh /bin/atlasaction
+      - atlas-orb/migrate_down:
+          working_directory: testdata
+          url: postgres://postgres:pass@localhost:5432/test?sslmode=disable
+          dir: "file://migrations"
+          config: "file://atlas.hcl"
+          dev_url: postgres://postgres:pass@localhost:5432/dev?sslmode=disable
+          env: "circleci-test"
+          amount: 1
+          to_tag: "tag"
+          to_version: "version"
+          wait_interval: "2s"
+          wait_timeout: "2m"
+          vars: |
+            foo=bar baz=qux quux=corge
+      - run:
+          name: Check echo.out for expected output
+          command: |
+            grep -qe "--action migrate/down" /tmp/echo.out
+            # check url should be set in the environment
+            grep -qe "INPUT_URL=postgres://postgres:pass@localhost:5432/test?sslmode=disable" /tmp/env.out
+            # check dir should be set in the environment
+            grep -qe "INPUT_DIR=file://migrations" /tmp/env.out
+            # check dev_url should be set in the environment
+            grep -qe "INPUT_DEV_URL=postgres://postgres:pass@localhost:5432/dev?sslmode=disable" /tmp/env.out
+            # check env should be set in the environment
+            grep -qe "INPUT_ENV=circleci-test" /tmp/env.out
+            # check amount should be set in the environment
+            grep -qe "INPUT_AMOUNT=1" /tmp/env.out
+            # check to_tag should be set in the environment
+            grep -qe "INPUT_TO_TAG=tag" /tmp/env.out
+            # check to_version should be set in the environment
+            grep -qe "INPUT_TO_VERSION=version" /tmp/env.out
+            # check wait_interval should be set in the environment
+            grep -qe "INPUT_WAIT_INTERVAL=2s" /tmp/env.out
+            # check wait_timeout should be set in the environment
+            grep -qe "INPUT_WAIT_TIMEOUT=2m" /tmp/env.out
+            # check vars should be set in the environment
+            grep -qe "INPUT_VARS=foo=bar baz=qux quux=corge" /tmp/env.out
   integration-test:
     docker:
       - image: cimg/base:current
@@ -150,6 +197,13 @@ jobs:
           POSTGRES_PASSWORD: pass
     steps:
       - checkout
+      - run:
+          name: Wait for Postgres
+          command: dockerize -wait tcp://localhost:5432 -timeout 60s
+      - run:
+          name: Create "dev" database
+          command: |
+            psql postgres://postgres:pass@localhost:5432 -c "CREATE DATABASE dev;"
       - atlas-orb/setup:
           version: "latest"
           cloud_token_env: "ATLAS_TOKEN"
@@ -165,6 +219,12 @@ jobs:
           working_directory: testdata
           dir: atlas://my-cool-project
           url: postgres://postgres:pass@localhost:5432/test?sslmode=disable
+      - atlas-orb/migrate_down:
+          working_directory: testdata
+          url: postgres://postgres:pass@localhost:5432/test?sslmode=disable
+          dir: "file://migrations"
+          dev_url: postgres://postgres:pass@localhost:5432/dev?sslmode=disable
+          amount: 1
   integration-test-gh:
     docker:
       - image: cimg/base:current
@@ -177,6 +237,13 @@ jobs:
       GITHUB_REPOSITORY: "ariga/atlas-orb"
     steps:
       - checkout
+      - run:
+          name: Wait for Postgres
+          command: dockerize -wait tcp://localhost:5432 -timeout 60s
+      - run:
+          name: Create "dev" database
+          command: |
+            psql postgres://postgres:pass@localhost:5432 -c "CREATE DATABASE dev;"
       - atlas-orb/setup:
           version: "latest"
           cloud_token_env: "ATLAS_TOKEN"
@@ -192,6 +259,12 @@ jobs:
           working_directory: testdata
           dir: atlas://my-cool-project
           url: postgres://postgres:pass@localhost:5432/test?sslmode=disable
+      - atlas-orb/migrate_down:
+          working_directory: testdata
+          url: postgres://postgres:pass@localhost:5432/test?sslmode=disable
+          dir: "file://migrations"
+          dev_url: postgres://postgres:pass@localhost:5432/dev?sslmode=disable
+          amount: 1
   integration-test-gh-lint:
     docker:
       - image: cimg/base:current
@@ -234,6 +307,8 @@ workflows:
           filters: *filters
       - command-test-migrate-apply:
           filters: *filters
+      - command-test-migrate-down:
+          filters: *filters
       - integration-test:
           context: ariga-atlas
           filters: *filters
@@ -242,6 +317,7 @@ workflows:
             - command-test-migrate-push
             - command-test-migrate-lint
             - command-test-migrate-apply
+            - command-test-migrate-down
       - integration-test-gh:
           context: ariga-atlas-gh
           filters: *filters
@@ -250,6 +326,7 @@ workflows:
             - command-test-migrate-push
             - command-test-migrate-lint
             - command-test-migrate-apply
+            - command-test-migrate-down
       - integration-test-gh-lint:
           context: ariga-atlas-gh
           filters: *filters
@@ -258,6 +335,7 @@ workflows:
             - command-test-migrate-push
             - command-test-migrate-lint
             - command-test-migrate-apply
+            - command-test-migrate-down
       # The orb must be re-packed for publishing, and saved to the workspace.
       - orb-tools/pack:
           filters: *release-filters
@@ -272,5 +350,6 @@ workflows:
             - command-test-migrate-push
             - command-test-migrate-lint
             - command-test-migrate-apply
+            - command-test-migrate-down
           context: orb-publisher
           filters: *release-filters

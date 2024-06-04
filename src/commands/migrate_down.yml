@@ -1,0 +1,105 @@
+description: >
+  Revert migrations to a database.
+
+parameters:
+  url:
+    type: string
+    default: ''
+    description: |
+      The URL of the target database. For example: `mysql://root:pass@localhost:3306/dev`.
+  dir:
+      type: string
+      default: ""
+      description: |
+        The URL of the migration directory to push. For example: file://migrations.
+        Read more about [Atlas URLs](https://atlasgo.io/concepts/url)
+  config:
+    type: string
+    default: ''
+    description: |
+      The path to the Atlas configuration file. By default, Atlas will look for a file named `atlas.hcl` in the current directory.
+      For example, `file://config/atlas.hcl`. Learn more about [Atlas configuration files](https://atlasgo.io/atlas-schema/projects).
+  dev_url:
+    type: string
+    default: ''
+    description: |
+      The URL of the dev-database to use for analysis. For example: mysql://root:pass@localhost:3306/dev.
+      Read more about [dev-databases](https://atlasgo.io/concepts/dev-database).
+  env:
+    type: string
+    default: ''
+    description: |
+      The environment to use from the Atlas configuration file. For example, `dev`.
+  amount:
+    type: integer
+    default: 1
+    description: |
+      The number of migrations to revert. Defaults to 1.
+  to_version:
+    type: string
+    default: ''
+    description: |
+      To which version to revert.
+  to_tag:
+    type: string
+    default: ''
+    description: |
+      To which tag to revert.
+  working_directory:
+    type: string
+    default: "."
+    description: |
+      The working directory to run from. Defaults to project root.
+  wait_interval:
+    type: string
+    default: "1s"
+    description: |
+      Time in seconds between different migrate down attempts, useful when waiting for plan approval, defaults to 1s.
+  wait_timeout:
+    type: string
+    default: ""
+    description: |
+      Time after which no other retry attempt is made and the action exits. If not set, only one attempt is made.
+  vars:
+    type: string
+    default: ''
+    description: |
+      Extra variables to pass to the Atlas configuration file. For example, `key=value`.
+  github_repo_env:
+    type: env_var_name
+    default: GITHUB_REPOSITORY
+    description: |
+      The repository name that linting results will be posted to.
+  github_token_env:
+    type: env_var_name
+    default: GITHUB_TOKEN
+    description: |
+      Environment variable containing the GitHub token.
+      If provided, the command will authenticate to GitHub.
+      (e.g. `GITHUB_TOKEN`)
+steps:
+  - run:
+      name: Revert migrations to a database
+      command: |
+        # replace GITHUB_REPOSITORY with the github_repo_env if provided
+        if [ -n "${<<parameters.github_repo_env>>}" ]; then
+          GITHUB_REPOSITORY=${<<parameters.github_repo_env>>}
+        fi
+        # replace GITHUB_TOKEN with the github_token_env if provided
+        if [ -n "${<<parameters.github_token_env>>}" ]; then
+          GITHUB_TOKEN=${<<parameters.github_token_env>>}
+        fi
+        atlasaction --action migrate/down
+      working_directory: <<parameters.working_directory>>
+      environment:
+        INPUT_URL: <<parameters.url>>
+        INPUT_DIR: <<parameters.dir>>
+        INPUT_CONFIG: <<parameters.config>>
+        INPUT_DEV_URL: <<parameters.dev_url>>
+        INPUT_ENV: <<parameters.env>>
+        INPUT_AMOUNT: <<parameters.amount>>
+        INPUT_TO_VERSION: <<parameters.to_version>>
+        INPUT_TO_TAG: <<parameters.to_tag>>
+        INPUT_WAIT_INTERVAL: <<parameters.wait_interval>>
+        INPUT_WAIT_TIMEOUT: <<parameters.wait_timeout>>
+        INPUT_VARS: <<parameters.vars>>
