@@ -1,0 +1,54 @@
+description: >
+  This command test migrations on a database.
+
+parameters:
+  dev_url:
+    type: string
+    default: ''
+    description: |
+      The URL of the dev-database to use for analysis. For example: mysql://root:pass@localhost:3306/dev.
+      Read more about [dev-databases](https://atlasgo.io/concepts/dev-database).
+  dir:
+    type: string
+    default: ''
+    description: |
+      The URL of the migration directory to test. For example: file://migrations.
+      Read more about [Atlas URLs](https://atlasgo.io/concepts/url)
+  run:
+      type: string
+      default: ''
+      description: |
+        Filter tests to run by regexp. For example, `^test_.*` will only run tests that start with `test_`. Default is to run all tests.
+  config:
+      type: string
+      default: ''
+      description: |
+        The path to the Atlas configuration file. By default, Atlas will look for a file named `atlas.hcl` in the current directory.
+        For example, `file://config/atlas.hcl`. Learn more about [Atlas configuration files](https://atlasgo.io/atlas-schema/projects).
+  vars:
+    type: string
+    default: ''
+    description: |
+      Extra variables to pass to the Atlas configuration file. For example, `key=value`.
+  working_directory:
+    type: string
+    default: "."
+    description: |
+      The working directory to run from. Defaults to project root.
+  env:
+    type: string
+    default: ''
+    description: |
+      The environment to use from the Atlas configuration file. For example, `dev`.
+steps:
+  - run:
+      name: Test migrations on a database
+      working_directory: <<parameters.working_directory>>
+      command: atlasaction --action migrate/test
+      environment:
+        INPUT_DEV_URL: <<parameters.dev_url>>
+        INPUT_RUN: <<parameters.run>>
+        INPUT_DIR: <<parameters.dir>>
+        INPUT_CONFIG: <<parameters.config>>
+        INPUT_ENV: <<parameters.env>>
+        INPUT_VARS: <<parameters.vars>>
