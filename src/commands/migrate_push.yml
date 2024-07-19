@@ -37,7 +37,7 @@ parameters:
     type: string
     default: ''
     description: |
-      Extra variables to pass to the Atlas configuration file. For example, `key=value`.
+      Stringify JSON object containing variables to be used inside the Atlas configuration file. For example: '{"var1": "value1", "var2": "value2"}'
   dev_url:
     type: string
     default: ''
