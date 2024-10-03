@@ -1,0 +1,65 @@
+description: >
+  Push a schema to [Atlas Registry](https://atlasgo.io/registry) with an optional tag.
+
+parameters:
+  schema_name:
+    type: string
+    default: ''
+    description: |
+      The name (slug) of the schema repository in [Atlas Registry](https://atlasgo.io/registry).
+  tag:
+    type: string
+    default: ''
+    description: |
+      The tag to apply to the pushed schema. By default, the current git commit hash is used.
+  latest:
+    type: boolean
+    default: false
+    description: |
+      If true, the pushed schema will be tagged as `latest`.
+  dev_url:
+    type: string
+    default: ''
+    description: |
+      The URL of the dev-database to use for analysis. For example: mysql://root:pass@localhost:3306/dev.
+      Read more about [dev-databases](https://atlasgo.io/concepts/dev-database).
+  url:
+    type: string
+    default: ''
+    description: |
+      The desired schema URL(s) to test. For Example: `file://schema.hcl`
+  config:
+      type: string
+      default: ''
+      description: |
+        The path to the Atlas configuration file. By default, Atlas will look for a file named `atlas.hcl` in the current directory.
+        For example, `file://config/atlas.hcl`. Learn more about [Atlas configuration files](https://atlasgo.io/atlas-schema/projects).
+  vars:
+    type: string
+    default: ''
+    description: |
+      Stringify JSON object containing variables to be used inside the Atlas configuration file. For example: '{"var1": "value1", "var2": "value2"}'
+  working_directory:
+    type: string
+    default: "."
+    description: |
+      The working directory to run from. Defaults to project root.
+  env:
+    type: string
+    default: ''
+    description: |
+      The environment to use from the Atlas configuration file. For example, `dev`.
+steps:
+  - run:
+      name: Test schema on a database
+      working_directory: <<parameters.working_directory>>
+      command: atlasaction --action schema/push
+      environment:
+        INPUT_SCHEMA_NAME: <<parameters.schema_name>>
+        INPUT_TAG: <<parameters.tag>>
+        INPUT_LATEST: <<parameters.latest>>
+        INPUT_DEV_URL: <<parameters.dev_url>>
+        INPUT_URL: <<parameters.url>>
+        INPUT_CONFIG: <<parameters.config>>
+        INPUT_ENV: <<parameters.env>>
+        INPUT_VARS: <<parameters.vars>>
