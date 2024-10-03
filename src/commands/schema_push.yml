@@ -27,7 +27,7 @@ parameters:
     type: string
     default: ''
     description: |
-      The desired schema URL(s) to test. For Example: `file://schema.hcl`
+      Desired schema URL(s) to push. For example: `file://schema.hcl`.
   config:
       type: string
       default: ''
