@@ -288,6 +288,123 @@ jobs:
             grep -qe "INPUT_CONFIG=file://atlas.hcl" /tmp/env.out
             # check vars should be set in the environment
             grep -qe "INPUT_VARS={\"foo\": \"bar\", \"baz\": \"qux\", \"quux\": \"corge\"}" /tmp/env.out
+  command-test-schema-plan:
+    executor: atlas-orb/default
+    steps:
+      - checkout
+      - run:
+          name: Mock atlas with echo.sh
+          command: |
+            sudo cp ./src/scripts/echo.sh /bin/atlas
+            sudo cp ./src/scripts/echo.sh /bin/atlasaction
+      - atlas-orb/schema_plan:
+          working_directory: testdata/schema-plan
+          schema_name: "my-cool-project"
+          plan_name: "my-plan"
+          from: "atlas://my-cool-project?tag=latest"
+          to: "file://schema.hcl"
+          dev_url: "postgres://postgres:pass@localhost:5432/dev?sslmode=disable"
+          env: "circleci-test"
+          config: "file://atlas.hcl"
+          vars: '{"foo": "bar", "baz": "qux", "quux": "corge"}'
+      - run:
+          name: Check echo.out for expected output
+          command: |
+            grep -qe "--action schema/plan" /tmp/echo.out
+            # check schema_name should be set in the environment
+            grep -qe "INPUT_SCHEMA_NAME=my-cool-project" /tmp/env.out
+            # check plan_name should be set in the environment
+            grep -qe "INPUT_NAME=my-plan" /tmp/env.out
+            # check from should be set in the environment
+            grep -qe "INPUT_FROM=atlas://my-cool-project?tag=latest" /tmp/env.out
+            # check to should be set in the environment
+            grep -qe "INPUT_TO=file://schema.hcl" /tmp/env.out
+            # check dev_url should be set in the environment
+            grep -qe "INPUT_DEV_URL=postgres://postgres:pass@localhost:5432/dev?sslmode=disable" /tmp/env.out
+            # check env should be set in the environment
+            grep -qe "INPUT_ENV=circleci-test" /tmp/env.out
+            # check config should be set in the environment
+            grep -qe "INPUT_CONFIG=file://atlas.hcl" /tmp/env.out
+            # check vars should be set in the environment
+            grep -qe "INPUT_VARS={\"foo\": \"bar\", \"baz\": \"qux\", \"quux\": \"corge\"}" /tmp/env.out
+  command-test-schema-plan-approve:
+    executor: atlas-orb/default
+    steps:
+      - checkout
+      - run:
+          name: Mock atlas with echo.sh
+          command: |
+            sudo cp ./src/scripts/echo.sh /bin/atlas
+            sudo cp ./src/scripts/echo.sh /bin/atlasaction
+      - atlas-orb/schema_plan_approve:
+          working_directory: testdata/schema-plan
+          schema_name: "my-cool-project"
+          plan: "my-plan"
+          from: "atlas://my-cool-project?tag=latest"
+          to: "file://schema.hcl"
+          dev_url: "postgres://postgres:pass@localhost:5432/dev?sslmode=disable"
+          env: "circleci-test"
+          config: "file://atlas.hcl"
+          vars: '{"foo": "bar", "baz": "qux", "quux": "corge"}'
+      - run:
+          name: Check echo.out for expected output
+          command: |
+            grep -qe "--action schema/plan/approve" /tmp/echo.out
+            # check schema_name should be set in the environment
+            grep -qe "INPUT_SCHEMA_NAME=my-cool-project" /tmp/env.out
+            # check plan_name should be set in the environment
+            grep -qe "INPUT_PLAN=my-plan" /tmp/env.out
+            # check from should be set in the environment
+            grep -qe "INPUT_FROM=atlas://my-cool-project?tag=latest" /tmp/env.out
+            # check to should be set in the environment
+            grep -qe "INPUT_TO=file://schema.hcl" /tmp/env.out
+            # check dev_url should be set in the environment
+            grep -qe "INPUT_DEV_URL=postgres://postgres:pass@localhost:5432/dev?sslmode=disable" /tmp/env.out
+            # check env should be set in the environment
+            grep -qe "INPUT_ENV=circleci-test" /tmp/env.out
+            # check config should be set in the environment
+            grep -qe "INPUT_CONFIG=file://atlas.hcl" /tmp/env.out
+            # check vars should be set in the environment
+            grep -qe "INPUT_VARS={\"foo\": \"bar\", \"baz\": \"qux\", \"quux\": \"corge\"}" /tmp/env.out
+  command-test-schema-apply:
+    executor: atlas-orb/default
+    steps:
+      - checkout
+      - run:
+          name: Mock atlas with echo.sh
+          command: |
+            sudo cp ./src/scripts/echo.sh /bin/atlas
+            sudo cp ./src/scripts/echo.sh /bin/atlasaction
+      - atlas-orb/schema_apply:
+          working_directory: testdata/schema-apply
+          to: "file://schema.hcl"
+          plan: "atlas://my-cool-project/plans/id"
+          url: "postgres://postgres:pass@localhost:5432/test?sslmode=disable"
+          dev_url: "postgres://postgres:pass@localhost:5432/dev?sslmode=disable"
+          auto_approve: true
+          env: "circleci-test"
+          config: "file://atlas.hcl"
+          vars: '{"foo": "bar", "baz": "qux", "quux": "corge"}'
+      - run:
+          name: Check echo.out for expected output
+          command: |
+            grep -qe "--action schema/apply" /tmp/echo.out
+            # check schema_name should be set in the environment
+            grep -qe "INPUT_TO=file://schema.hcl" /tmp/env.out
+            # check plan should be set in the environment
+            grep -qe "INPUT_PLAN=atlas://my-cool-project/plans/id" /tmp/env.out
+            # check url should be set in the environment
+            grep -qe "INPUT_URL=postgres://postgres:pass@localhost:5432/test?sslmode=disable" /tmp/env.out
+            # check dev_url should be set in the environment
+            grep -qe "INPUT_DEV_URL=postgres://postgres:pass@localhost:5432/dev?sslmode=disable" /tmp/env.out
+            # check auto_approve should be set in the environment
+            grep -qe "INPUT_AUTO_APPROVE=1" /tmp/env.out
+            # check env should be set in the environment
+            grep -qe "INPUT_ENV=circleci-test" /tmp/env.out
+            # check config should be set in the environment
+            grep -qe "INPUT_CONFIG=file://atlas.hcl" /tmp/env.out
+            # check vars should be set in the environment
+            grep -qe "INPUT_VARS={\"foo\": \"bar\", \"baz\": \"qux\", \"quux\": \"corge\"}" /tmp/env.out
   integration-test-versioned:
     docker:
       - image: cimg/base:current
@@ -486,11 +603,31 @@ jobs:
             version: "latest"
             cloud_token_env: "ATLAS_TOKEN"
         - atlas-orb/schema_push:
-            working_directory: testdata/schema-push
+            working_directory: testdata/schema-plan
             schema_name: "circleci-schema-test"
             tag: "latest"
             url: "postgres://postgres:pass@localhost:5432/test?sslmode=disable"
             dev_url: postgres://postgres:pass@localhost:5432/dev?sslmode=disable
+        - atlas-orb/schema_plan:
+            working_directory: testdata/schema-plan
+            schema_name: "circleci-schema-test"
+            from: "atlas://circleci-schema-test?tag=latest"
+            to: "file://schema.hcl"
+            plan_name: << pipeline.git.revision >>
+            dev_url: postgres://postgres:pass@localhost:5432/dev?sslmode=disable
+            vars: '{"comment": "<< pipeline.git.revision >>"}'
+        - run:
+            name: Aprrove schema plan before apply
+            command: |
+              atlas schema plan approve --url atlas://circleci-schema-test/plans/<< pipeline.git.revision >>
+        - atlas-orb/schema_apply:
+            working_directory: testdata/schema-plan
+            to: "file://schema.hcl"
+            plan: "atlas://circleci-schema-test/plans/<< pipeline.git.revision >>"
+            url: "postgres://postgres:pass@localhost:5432/test?sslmode=disable"
+            dev_url: "postgres://postgres:pass@localhost:5432/dev?sslmode=disable"
+            auto_approve: true
+            vars: '{"comment": "<< pipeline.git.revision >>"}'
   integration-test-declarative-gh-test:
       docker:
         - image: cimg/base:current
@@ -543,6 +680,12 @@ workflows:
           filters: *filters
       - command-test-schema-push:
           filters: *filters
+      - command-test-schema-plan:
+          filters: *filters
+      - command-test-schema-plan-approve:
+          filters: *filters
+      - command-test-schema-apply:
+          filters: *filters
       - integration-test-versioned:
           context: ariga-atlas
           filters: *filters
@@ -589,6 +732,9 @@ workflows:
             - command-test-setup
             - command-test-schema-test
             - command-test-schema-push
+            - command-test-schema-plan
+            - command-test-schema-plan-approve
+            - command-test-schema-apply
       - integration-test-declarative-gh-test:
           context: ariga-atlas-gh
           filters: *filters
