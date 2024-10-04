@@ -535,6 +535,7 @@ jobs:
             schema_name: "circleci-schema-test"
             from: "atlas://circleci-schema-test?tag=latest"
             to: "file://schema.hcl"
+            plan_name: $CIRCLE_SHA1
             dev_url: postgres://postgres:pass@localhost:5432/dev?sslmode=disable
   integration-test-declarative-gh-test:
       docker:
