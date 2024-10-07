@@ -12,6 +12,11 @@ filters: &filters
   tags:
     only: /.*/
 
+# Use this filters to ensure test jobs always run on all branches except master.
+not-master-filters: &not-master-filters
+  branches:
+    ignore: /master/
+
 # Filter for release tags.
 release-filters: &release-filters
   branches:
@@ -727,7 +732,7 @@ workflows:
             - command-test-schema-push
       - integration-test-declarative-gh:
           context: ariga-atlas-gh
-          filters: *filters
+          filters: *not-master-filters
           requires:
             - command-test-setup
             - command-test-schema-test
