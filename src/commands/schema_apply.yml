@@ -1,33 +1,38 @@
 description: >
-  Push a schema to [Atlas Registry](https://atlasgo.io/registry) with an optional tag.
+  Apply a declarative migrations to a database.
 
 parameters:
-  schema_name:
+  to:
     type: string
     default: ''
     description: |
-      The name (slug) of the schema repository in [Atlas Registry](https://atlasgo.io/registry).
-  tag:
+      The URL(s) of the desired schema state.
+  url:
     type: string
     default: ''
     description: |
-      The tag to apply to the pushed schema. By default, the current git commit hash is used.
-  latest:
+      The URL of the target database. For example: `mysql://root:pass@localhost:3306/prod`.
+  plan:
+    type: string
+    default: ''
+    description: |
+      Optional plan file to use for applying the migrations. For example: `atlas://<schema>/plans/<id>`.
+  dry_run:
     type: boolean
     default: false
     description: |
-      If true, the pushed schema will be tagged as `latest`.
+      Print SQL (and optional analysis) without executing it. Either `true` or `false`. Defaults to `false`.
+  auto_approve:
+    type: boolean
+    default: false
+    description: |
+      Automatically approve and apply changes. Either `true` or `false`. Defaults to `false`.
   dev_url:
     type: string
     default: ''
     description: |
       The URL of the dev-database to use for analysis. For example: mysql://root:pass@localhost:3306/dev.
       Read more about [dev-databases](https://atlasgo.io/concepts/dev-database).
-  url:
-    type: string
-    default: ''
-    description: |
-      Desired schema URL(s) to push. For example: `file://schema.hcl`.
   config:
       type: string
       default: ''
@@ -51,15 +56,16 @@ parameters:
       The environment to use from the Atlas configuration file. For example, `dev`.
 steps:
   - run:
-      name: Test schema on a database
+      name: Apply a declarative migrations to a database
       working_directory: <<parameters.working_directory>>
-      command: atlasaction --action schema/push
+      command: atlasaction --action schema/apply
       environment:
-        INPUT_SCHEMA_NAME: <<parameters.schema_name>>
-        INPUT_TAG: <<parameters.tag>>
-        INPUT_LATEST: <<parameters.latest>>
-        INPUT_DEV_URL: <<parameters.dev_url>>
+        INPUT_TO: <<parameters.to>>
         INPUT_URL: <<parameters.url>>
+        INPUT_PLAN: <<parameters.plan>>
+        INPUT_DRY_RUN: <<parameters.dry_run>>
+        INPUT_AUTO_APPROVE: <<parameters.auto_approve>>
+        INPUT_DEV_URL: <<parameters.dev_url>>
         INPUT_CONFIG: <<parameters.config>>
         INPUT_ENV: <<parameters.env>>
         INPUT_VARS: <<parameters.vars>>
