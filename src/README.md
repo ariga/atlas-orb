@@ -1,26 +1,26 @@
-# Orb Source
+# Circle Orbs for Atlas
 
-Orbs are shipped as individual `orb.yml` files, however, to make development easier, it is possible to author an orb in _unpacked_ form, which can be _packed_ with the CircleCI CLI and published.
+This repository contains CircleCI Orbs for working with [Atlas](https://atlasgo.io).
 
-The default `.circleci/config.yml` file contains the configuration code needed to automatically pack, test, and deploy any changes made to the contents of the orb source in this directory.
+To learn more about the recommended way to build workflows, read our guide on 
+[Modern CI/CD for Databases](https://atlasgo.io/guides/modern-database-ci-cd).
 
-## @orb.yml
+## Orbs
 
-This is the entry point for our orb "tree", which becomes our `orb.yml` file later.
+| Orb                                                                                                  | Description                                                      |
+|---------------------------------------------------------------------------------------------------------|------------------------------------------------------------------|
+| [atlas-orb/setup](https://circleci.com/developer/orbs/orb/ariga/atlas-orb#commands-setup)               | Setup the Atlas CLI and optionally login to Atlas Cloud          |
+| [atlas-orb/migrate_push](https://circleci.com/developer/orbs/orb/ariga/atlas-orb#commands-migrate_push) | Push migrations to [Atlas Registry](https://atlasgo.io/registry) |
+| [atlas-orb/migrate_lint](https://circleci.com/developer/orbs/orb/ariga/atlas-orb#commands-migrate_lint) | Lint migrations (required `atlas login` )                        |
+| [atlas-orb/migrate_apply](https://circleci.com/developer/orbs/orb/ariga/atlas-orb#commands-migrate_apply) | Apply migrations to a database                                 |
+| [atlas-orb/migrate_down](https://circleci.com/developer/orbs/orb/ariga/atlas-orb#commands-migrate_down) | Revert migrations to a database                                  |
+| [atlas-orb/migrate_test](https://circleci.com/developer/orbs/orb/ariga/atlas-orb#commands-migrate_test) | Test migrations on a database                                    |
+| [atlas-orb/schema_test](https://circleci.com/developer/orbs/orb/ariga/atlas-orb#commands-schema_test)   | Test schema on a database                                        |
+| [atlas-orb/schema_push](https://circleci.com/developer/orbs/orb/ariga/atlas-orb#commands-schema_push)   | Push a schema to [Atlas Registry](https://atlasgo.io/registry)   |
+| [atlas-orb/schema_plan](https://circleci.com/developer/orbs/orb/ariga/atlas-orb#commands-schema_plan)   | Plan a declarative migration for a schema transition             |
+| [atlas-orb/schema_plan_approve](https://circleci.com/developer/orbs/orb/ariga/atlas-orb#commands-schema_plan_approve) | Approve a declarative migration plan               |
+| [atlas-orb/schema_apply](https://circleci.com/developer/orbs/orb/ariga/atlas-orb#commands-schema_apply) | Apply a declarative migrations to a database                     |
 
-Within the `@orb.yml` we generally specify 4 configuration keys
+## Examples
 
-**Keys**
-
-1. **version**
-    Specify version 2.1 for orb-compatible configuration `version: 2.1`
-2. **description**
-    Give your orb a description. Shown within the CLI and orb registry
-3. **display**
-    Specify the `home_url` referencing documentation or product URL, and `source_url` linking to the orb's source repository.
-4. **orbs**
-    (optional) Some orbs may depend on other orbs. Import them here.
-
-## See:
- - [Orb Author Intro](https://circleci.com/docs/2.0/orb-author-intro/#section=configuration)
- - [Reusable Configuration](https://circleci.com/docs/2.0/reusing-config)
+Check out this [link](https://atlasgo.io/integrations/circleci-orbs) for more information on how to use the orbs.
