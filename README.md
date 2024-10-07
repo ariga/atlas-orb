@@ -1,25 +1,35 @@
-# atlas-orb
+# Circle Orbs for Atlas
 
-CircleCI Orb for atlasgo.io
+This repository contains CircleCI Orbs for working with [Atlas](https://atlasgo.io).
 
-<!---
-[![CircleCI Build Status](https://circleci.com/gh/ariga/atlas-orb.svg?style=shield "CircleCI Build Status")](https://circleci.com/gh/ariga/atlas-orb) [![CircleCI Orb Version](https://badges.circleci.com/orbs/ariga/atlas-orb.svg)](https://circleci.com/developer/orbs/orb/ariga/atlas-orb) [![GitHub License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](https://raw.githubusercontent.com/ariga/atlas-orb/master/LICENSE) [![CircleCI Community](https://img.shields.io/badge/community-CircleCI%20Discuss-343434.svg)](https://discuss.circleci.com/c/ecosystem/orbs)
+To learn more about the recommended way to build workflows, read our guide on 
+[Modern CI/CD for Databases](https://atlasgo.io/guides/modern-database-ci-cd).
 
---->
+## Orbs
 
----
+| Orb                                                                                                  | Description                                                      |
+|---------------------------------------------------------------------------------------------------------|------------------------------------------------------------------|
+| [atlas-orb/setup](https://circleci.com/developer/orbs/orb/ariga/atlas-orb#commands-setup)               | Setup the Atlas CLI and optionally login to Atlas Cloud          |
+| [atlas-orb/migrate_push](https://circleci.com/developer/orbs/orb/ariga/atlas-orb#commands-migrate_push) | Push migrations to [Atlas Registry](https://atlasgo.io/registry) |
+| [atlas-orb/migrate_lint](https://circleci.com/developer/orbs/orb/ariga/atlas-orb#commands-migrate_lint) | Lint migrations (required `atlas login` )                        |
+| [atlas-orb/migrate_apply](https://circleci.com/developer/orbs/orb/ariga/atlas-orb#commands-migrate_apply) | Apply migrations to a database                                 |
+| [atlas-orb/migrate_down](https://circleci.com/developer/orbs/orb/ariga/atlas-orb#commands-migrate_down) | Revert migrations to a database                                  |
+| [atlas-orb/migrate_test](https://circleci.com/developer/orbs/orb/ariga/atlas-orb#commands-migrate_test) | Test migrations on a database                                    |
+| [atlas-orb/schema_test](https://circleci.com/developer/orbs/orb/ariga/atlas-orb#commands-schema_test)   | Test schema on a database                                        |
+| [atlas-orb/schema_push](https://circleci.com/developer/orbs/orb/ariga/atlas-orb#commands-schema_push)   | Push a schema to [Atlas Registry](https://atlasgo.io/registry)   |
+| [atlas-orb/schema_plan](https://circleci.com/developer/orbs/orb/ariga/atlas-orb#commands-schema_plan)   | Plan a declarative migration for a schema transition             |
+| [atlas-orb/schema_plan_approve](https://circleci.com/developer/orbs/orb/ariga/atlas-orb#commands-schema_plan_approve) | Approve a declarative migration plan               |
+| [atlas-orb/schema_apply](https://circleci.com/developer/orbs/orb/ariga/atlas-orb#commands-schema_apply) | Apply a declarative migrations to a database                     |
 
-## Resources
+## Examples
 
-[CircleCI Orb Registry Page](https://circleci.com/developer/orbs/orb/ariga/atlas-orb) - The official registry page of this orb for all versions, executors, commands, and jobs described.
+Check out this [link](https://atlasgo.io/integrations/circleci-orbs) for more information on how to use the orbs.
 
-[CircleCI Orb Docs](https://circleci.com/docs/orb-intro/#section=configuration) - Docs for using, creating, and publishing CircleCI Orbs.
-
-### How to Contribute
+## How to Contribute
 
 We welcome [issues](https://github.com/ariga/atlas/issues) to and [pull requests](https://github.com/ariga/atlas-orb/pulls) against this repository!
 
-### How to Publish An Update
+## How to Publish An Update
 
 1. Merge pull requests with desired changes to the main branch.
     - For the best experience, squash-and-merge and use [Conventional Commit Messages](https://conventionalcommits.org/).
