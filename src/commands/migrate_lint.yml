@@ -12,6 +12,11 @@ parameters:
     type: string
     description: |
       The name (slug) of the project in Atlas Cloud.
+  tag:
+    type: string
+    default: ""
+    description: |
+      The tag of migrations to used as base for linting. By default, the `latest` tag is used.
   dev_url:
       type: string
       default: ''
@@ -57,6 +62,7 @@ steps:
       working_directory: <<parameters.working_directory>>
       environment:
         INPUT_DIR_NAME: <<parameters.dir_name>>
+        INPUT_TAG: <<parameters.tag>>
         INPUT_DIR: <<parameters.dir>>
         INPUT_CONFIG: <<parameters.config>>
         INPUT_ENV: <<parameters.env>>
