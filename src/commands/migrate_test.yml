@@ -46,9 +46,9 @@ steps:
       working_directory: <<parameters.working_directory>>
       command: atlasaction --action migrate/test
       environment:
-        INPUT_DEV_URL: <<parameters.dev_url>>
-        INPUT_RUN: <<parameters.run>>
-        INPUT_DIR: <<parameters.dir>>
-        INPUT_CONFIG: <<parameters.config>>
-        INPUT_ENV: <<parameters.env>>
-        INPUT_VARS: <<parameters.vars>>
+        ATLAS_INPUT_DEV_URL: <<parameters.dev_url>>
+        ATLAS_INPUT_RUN: <<parameters.run>>
+        ATLAS_INPUT_DIR: <<parameters.dir>>
+        ATLAS_INPUT_CONFIG: <<parameters.config>>
+        ATLAS_INPUT_ENV: <<parameters.env>>
+        ATLAS_INPUT_VARS: <<parameters.vars>>
