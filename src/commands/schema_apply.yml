@@ -60,12 +60,12 @@ steps:
       working_directory: <<parameters.working_directory>>
       command: atlasaction --action schema/apply
       environment:
-        INPUT_TO: <<parameters.to>>
-        INPUT_URL: <<parameters.url>>
-        INPUT_PLAN: <<parameters.plan>>
-        INPUT_DRY_RUN: <<parameters.dry_run>>
-        INPUT_AUTO_APPROVE: <<parameters.auto_approve>>
-        INPUT_DEV_URL: <<parameters.dev_url>>
-        INPUT_CONFIG: <<parameters.config>>
-        INPUT_ENV: <<parameters.env>>
-        INPUT_VARS: <<parameters.vars>>
+        ATLAS_INPUT_TO: <<parameters.to>>
+        ATLAS_INPUT_URL: <<parameters.url>>
+        ATLAS_INPUT_PLAN: <<parameters.plan>>
+        ATLAS_INPUT_DRY_RUN: <<parameters.dry_run>>
+        ATLAS_INPUT_AUTO_APPROVE: <<parameters.auto_approve>>
+        ATLAS_INPUT_DEV_URL: <<parameters.dev_url>>
+        ATLAS_INPUT_CONFIG: <<parameters.config>>
+        ATLAS_INPUT_ENV: <<parameters.env>>
+        ATLAS_INPUT_VARS: <<parameters.vars>>

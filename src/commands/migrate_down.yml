@@ -92,14 +92,14 @@ steps:
         atlasaction --action migrate/down
       working_directory: <<parameters.working_directory>>
       environment:
-        INPUT_URL: <<parameters.url>>
-        INPUT_DIR: <<parameters.dir>>
-        INPUT_CONFIG: <<parameters.config>>
-        INPUT_DEV_URL: <<parameters.dev_url>>
-        INPUT_ENV: <<parameters.env>>
-        INPUT_AMOUNT: <<parameters.amount>>
-        INPUT_TO_VERSION: <<parameters.to_version>>
-        INPUT_TO_TAG: <<parameters.to_tag>>
-        INPUT_WAIT_INTERVAL: <<parameters.wait_interval>>
-        INPUT_WAIT_TIMEOUT: <<parameters.wait_timeout>>
-        INPUT_VARS: <<parameters.vars>>
+        ATLAS_INPUT_URL: <<parameters.url>>
+        ATLAS_INPUT_DIR: <<parameters.dir>>
+        ATLAS_INPUT_CONFIG: <<parameters.config>>
+        ATLAS_INPUT_DEV_URL: <<parameters.dev_url>>
+        ATLAS_INPUT_ENV: <<parameters.env>>
+        ATLAS_INPUT_AMOUNT: <<parameters.amount>>
+        ATLAS_INPUT_TO_VERSION: <<parameters.to_version>>
+        ATLAS_INPUT_TO_TAG: <<parameters.to_tag>>
+        ATLAS_INPUT_WAIT_INTERVAL: <<parameters.wait_interval>>
+        ATLAS_INPUT_WAIT_TIMEOUT: <<parameters.wait_timeout>>
+        ATLAS_INPUT_VARS: <<parameters.vars>>

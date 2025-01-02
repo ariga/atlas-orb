@@ -61,13 +61,13 @@ steps:
       name: Lint migrations and report results to Atlas Cloud
       working_directory: <<parameters.working_directory>>
       environment:
-        INPUT_DIR_NAME: <<parameters.dir_name>>
-        INPUT_TAG: <<parameters.tag>>
-        INPUT_DIR: <<parameters.dir>>
-        INPUT_CONFIG: <<parameters.config>>
-        INPUT_ENV: <<parameters.env>>
-        INPUT_VARS: <<parameters.vars>>
-        INPUT_DEV_URL: <<parameters.dev_url>>
+        ATLAS_INPUT_DIR_NAME: <<parameters.dir_name>>
+        ATLAS_INPUT_TAG: <<parameters.tag>>
+        ATLAS_INPUT_DIR: <<parameters.dir>>
+        ATLAS_INPUT_CONFIG: <<parameters.config>>
+        ATLAS_INPUT_ENV: <<parameters.env>>
+        ATLAS_INPUT_VARS: <<parameters.vars>>
+        ATLAS_INPUT_DEV_URL: <<parameters.dev_url>>
       command: |
         # replace GITHUB_REPOSITORY with the github_repo_env if provided
         if [ -n "${<<parameters.github_repo_env>>}" ]; then

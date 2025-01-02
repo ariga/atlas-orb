@@ -75,11 +75,11 @@ steps:
         fi
         atlasaction --action schema/plan
       environment:
-        INPUT_SCHEMA_NAME: <<parameters.schema_name>>
-        INPUT_FROM: <<parameters.from>>
-        INPUT_TO: <<parameters.to>>
-        INPUT_NAME: <<parameters.plan_name>>
-        INPUT_DEV_URL: <<parameters.dev_url>>
-        INPUT_CONFIG: <<parameters.config>>
-        INPUT_ENV: <<parameters.env>>
-        INPUT_VARS: <<parameters.vars>>
+        ATLAS_INPUT_SCHEMA_NAME: <<parameters.schema_name>>
+        ATLAS_INPUT_FROM: <<parameters.from>>
+        ATLAS_INPUT_TO: <<parameters.to>>
+        ATLAS_INPUT_NAME: <<parameters.plan_name>>
+        ATLAS_INPUT_DEV_URL: <<parameters.dev_url>>
+        ATLAS_INPUT_CONFIG: <<parameters.config>>
+        ATLAS_INPUT_ENV: <<parameters.env>>
+        ATLAS_INPUT_VARS: <<parameters.vars>>
