@@ -1,0 +1,57 @@
+description: >
+  Sync the database schema to Atlas Cloud
+parameters:
+  working_directory:
+    type: string
+    description: Atlas working directory, default is project root
+    default: "."
+  cloud_token_env:
+    type: env_var_name
+    default: ATLAS_TOKEN
+    description: |
+      Environment variable containing the Atlas Cloud token.
+      If provided, the command will authenticate to Atlas Cloud.
+      (e.g. `ATLAS_TOKEN`)
+  url:
+    type: string
+    description: "URL of the database to sync (mutually exclusive with `config` and `env`)."
+    default: ""
+  config:
+    type: string
+    description:
+      "The URL of the Atlas configuration file (mutually exclusive with `url`).
+      For example, `file://config/atlas.hcl`, learn more about [Atlas configuration files](https://atlasgo.io/atlas-schema/projects)."
+    default: ""
+  env:
+    type: string
+    description: "The environment to use from the Atlas configuration file. For example, `dev` (mutually exclusive with `url`)."
+    default: ""
+  slug:
+    type: string
+    description: "Optional unique identifier for the database server."
+    default: ""
+  schemas:
+    type: string
+    description:
+      "List of database schemas to include (by default includes all schemas).
+      See: https://atlasgo.io/declarative/inspect#inspect-multiple-schemas"
+    default: ""
+  exclude:
+    type: string
+    description: "List of exclude patterns from inspection.
+      See: https://atlasgo.io/declarative/inspect#exclude-schemas"
+    default: ""
+steps:
+  - run:
+      name: "Sync the database schema to Atlas Cloud"
+      working_directory: <<parameters.working_directory>>
+      command: |
+        ATLAS_INPUT_CLOUD_TOKEN=${<<parameters.cloud_token_env>>}
+        atlasaction --action monitor/schema
+      environment:
+        ATLAS_INPUT_SLUG: <<parameters.slug>>
+        ATLAS_INPUT_SCHEMAS: <<parameters.schemas>>
+        ATLAS_INPUT_EXCLUDE: <<parameters.exclude>>
+        ATLAS_INPUT_URL: <<parameters.url>>
+        ATLAS_INPUT_CONFIG: <<parameters.config>>
+        ATLAS_INPUT_ENV: <<parameters.env>>
