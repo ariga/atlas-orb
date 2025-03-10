@@ -188,6 +188,27 @@ jobs:
             grep -qe "INPUT_WAIT_TIMEOUT=2m" /tmp/env.out
             # check vars should be set in the environment
             grep -qe "INPUT_VARS={\"foo\": \"bar\", \"baz\": \"qux\", \"quux\": \"corge\"}" /tmp/env.out
+  command-test-migrate-rebase:
+    executor: atlas-orb/default
+    steps:
+      - checkout
+      - run:
+          name: Mock atlas with echo.sh
+          command: |
+            sudo cp ./src/scripts/echo.sh /bin/atlas
+            sudo cp ./src/scripts/echo.sh /bin/atlasaction
+      - atlas-orb/migrate_auto_rebase:
+          working_directory: testdata
+          base_branch: "master"
+          dir: "file://migrations"
+      - run:
+          name: Check echo.out for expected output
+          command: |
+            grep -qe "--action migrate/autorebase" /tmp/echo.out
+            # check dir should be set in the environment
+            grep -qe "INPUT_DIR=file://migrations" /tmp/env.out
+            # check base_branch should be set in the environment
+            grep -qe "INPUT_BASE_BRANCH=master" /tmp/env.out
   command-test-migrate-test:
     executor: atlas-orb/default
     steps:
@@ -505,6 +526,10 @@ jobs:
           run: "expected_success"
           dir: atlas://my-cool-project
           dev_url: postgres://postgres:pass@localhost:5432/test?search_path=public&sslmode=disable
+      - atlas-orb/migrate_auto_rebase:
+          working_directory: testdata
+          base_branch: "master"
+          dir: "file://migrations"
       - atlas-orb/migrate_lint:
           working_directory: testdata
           dir_name: my-cool-project
@@ -681,6 +706,8 @@ workflows:
           filters: *filters
       - command-test-migrate-down:
           filters: *filters
+      - command-test-migrate-rebase:
+          filters: *filters
       - command-test-schema-test:
           filters: *filters
       - command-test-schema-push:
@@ -701,6 +728,7 @@ workflows:
             - command-test-migrate-lint
             - command-test-migrate-apply
             - command-test-migrate-down
+            - command-test-migrate-rebase
       - integration-test-versioned-gh:
           context: ariga-atlas-gh
           filters: *filters
@@ -711,6 +739,7 @@ workflows:
             - command-test-migrate-lint
             - command-test-migrate-apply
             - command-test-migrate-down
+            - command-test-migrate-rebase
       - integration-test-versioned-gh-lint:
           context: ariga-atlas-gh
           filters: *filters
@@ -762,6 +791,7 @@ workflows:
             - command-test-migrate-lint
             - command-test-migrate-apply
             - command-test-migrate-down
+            - command-test-migrate-rebase
             - command-test-schema-test
           context: orb-publisher
           filters: *release-filters
