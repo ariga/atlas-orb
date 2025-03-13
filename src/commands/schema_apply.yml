@@ -57,9 +57,9 @@ parameters:
 steps:
   - run:
       name: Apply a declarative migrations to a database
-      working_directory: <<parameters.working_directory>>
       command: atlasaction --action schema/apply
       environment:
+        ATLAS_INPUT_WORKING_DIRECTORY: <<parameters.working_directory>>
         ATLAS_INPUT_TO: <<parameters.to>>
         ATLAS_INPUT_URL: <<parameters.url>>
         ATLAS_INPUT_PLAN: <<parameters.plan>>

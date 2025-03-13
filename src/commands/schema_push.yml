@@ -52,9 +52,9 @@ parameters:
 steps:
   - run:
       name: Test schema on a database
-      working_directory: <<parameters.working_directory>>
       command: atlasaction --action schema/push
       environment:
+        ATLAS_INPUT_WORKING_DIRECTORY: <<parameters.working_directory>>
         ATLAS_INPUT_SCHEMA_NAME: <<parameters.schema_name>>
         ATLAS_INPUT_TAG: <<parameters.tag>>
         ATLAS_INPUT_LATEST: <<parameters.latest>>

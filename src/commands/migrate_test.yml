@@ -43,9 +43,9 @@ parameters:
 steps:
   - run:
       name: Test migrations on a database
-      working_directory: <<parameters.working_directory>>
       command: atlasaction --action migrate/test
       environment:
+        ATLAS_INPUT_WORKING_DIRECTORY: <<parameters.working_directory>>
         ATLAS_INPUT_DEV_URL: <<parameters.dev_url>>
         ATLAS_INPUT_RUN: <<parameters.run>>
         ATLAS_INPUT_DIR: <<parameters.dir>>
