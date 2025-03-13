@@ -20,8 +20,8 @@ parameters:
 steps:
   - run:
       name: Rebase migrations to a database
-      working_directory: <<parameters.working_directory>>
       command: atlasaction --action migrate/autorebase
       environment:
         ATLAS_INPUT_DIR: <<parameters.dir>>
         ATLAS_INPUT_BASE_BRANCH: <<parameters.base_branch>>
+        ATLAS_INPUT_WORKING_DIRECTORY: <<parameters.working_directory>>
