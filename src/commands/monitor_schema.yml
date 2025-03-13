@@ -44,11 +44,11 @@ parameters:
 steps:
   - run:
       name: "Sync the database schema to Atlas Cloud"
-      working_directory: <<parameters.working_directory>>
       command: |
         ATLAS_INPUT_CLOUD_TOKEN=${<<parameters.cloud_token_env>>}
         atlasaction --action monitor/schema
       environment:
+        ATLAS_INPUT_WORKING_DIRECTORY: <<parameters.working_directory>>
         ATLAS_INPUT_SLUG: <<parameters.slug>>
         ATLAS_INPUT_SCHEMAS: <<parameters.schemas>>
         ATLAS_INPUT_EXCLUDE: <<parameters.exclude>>

@@ -59,8 +59,8 @@ parameters:
 steps:
   - run:
       name: Lint migrations and report results to Atlas Cloud
-      working_directory: <<parameters.working_directory>>
       environment:
+        ATLAS_INPUT_WORKING_DIRECTORY: <<parameters.working_directory>>
         ATLAS_INPUT_DIR_NAME: <<parameters.dir_name>>
         ATLAS_INPUT_TAG: <<parameters.tag>>
         ATLAS_INPUT_DIR: <<parameters.dir>>

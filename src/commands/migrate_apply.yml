@@ -42,9 +42,9 @@ parameters:
 steps:
   - run:
       name: Apply migrations to a database
-      working_directory: <<parameters.working_directory>>
       command: atlasaction --action migrate/apply
       environment:
+        ATLAS_INPUT_WORKING_DIRECTORY: <<parameters.working_directory>>
         ATLAS_INPUT_DIR: <<parameters.dir>>
         ATLAS_INPUT_CONFIG: <<parameters.config>>
         ATLAS_INPUT_ENV: <<parameters.env>>

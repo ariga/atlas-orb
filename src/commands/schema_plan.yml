@@ -63,7 +63,6 @@ parameters:
 steps:
   - run:
       name: Plan a declarative migration for a schema transition
-      working_directory: <<parameters.working_directory>>
       command: |
         # replace GITHUB_REPOSITORY with the github_repo_env if provided
         if [ -n "${<<parameters.github_repo_env>>}" ]; then
@@ -75,6 +74,7 @@ steps:
         fi
         atlasaction --action schema/plan
       environment:
+        ATLAS_INPUT_WORKING_DIRECTORY: <<parameters.working_directory>>
         ATLAS_INPUT_SCHEMA_NAME: <<parameters.schema_name>>
         ATLAS_INPUT_FROM: <<parameters.from>>
         ATLAS_INPUT_TO: <<parameters.to>>

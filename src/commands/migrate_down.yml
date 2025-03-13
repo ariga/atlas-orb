@@ -90,8 +90,8 @@ steps:
           GITHUB_TOKEN=${<<parameters.github_token_env>>}
         fi
         atlasaction --action migrate/down
-      working_directory: <<parameters.working_directory>>
       environment:
+        ATLAS_INPUT_WORKING_DIRECTORY: <<parameters.working_directory>>
         ATLAS_INPUT_URL: <<parameters.url>>
         ATLAS_INPUT_DIR: <<parameters.dir>>
         ATLAS_INPUT_CONFIG: <<parameters.config>>
