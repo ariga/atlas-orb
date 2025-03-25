@@ -526,10 +526,20 @@ jobs:
           run: "expected_success"
           dir: atlas://my-cool-project
           dev_url: postgres://postgres:pass@localhost:5432/test?search_path=public&sslmode=disable
-      - atlas-orb/migrate_auto_rebase:
-          working_directory: testdata
-          base_branch: "master"
-          dir: "file://migrations"
+      - when:
+          condition: << pipeline.git.branch != "master" >>
+          steps:
+            - atlas-orb/migrate_auto_rebase:
+                working_directory: testdata
+                base_branch: "master"
+                dir: "file://migrations"
+      - when:
+          condition: << pipeline.git.branch != "master" >>
+          steps:
+            - atlas-orb/migrate_auto_rebase:
+                working_directory: testdata
+                base_branch: "rebase"
+                dir: "file://rebase"
       - atlas-orb/migrate_lint:
           working_directory: testdata
           dir_name: my-cool-project
