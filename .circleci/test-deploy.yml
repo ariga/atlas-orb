@@ -536,18 +536,6 @@ jobs:
                   git config --global user.email "ci@circleci.com"
             - atlas-orb/migrate_auto_rebase:
                 working_directory: testdata
-                base_branch: "master"
-                dir: "file://migrations"
-      - when:
-          condition: << pipeline.git.branch != "master" >>
-          steps:
-            - run:
-                name: Setup Git User
-                command: |
-                  git config --global user.name "CircleCI"
-                  git config --global user.email "ci@circleci.com"
-            - atlas-orb/migrate_auto_rebase:
-                working_directory: testdata
                 base_branch: "rebase"
                 dir: "file://rebase"
       - atlas-orb/migrate_lint:
