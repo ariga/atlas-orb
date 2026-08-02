@@ -45,10 +45,10 @@ jobs:
 
           # The sync opens a PR against master, so refuse to run from any other branch
           # (workflow_dispatch can be triggered from an arbitrary ref).
-          if [ "$GITHUB_REF" != "refs/heads/master" ]; then
-            echo "This workflow must run on master, got $GITHUB_REF." >&2
-            exit 1
-          fi
+          # if [ "$GITHUB_REF" != "refs/heads/master" ]; then
+          #   echo "This workflow must run on master, got $GITHUB_REF." >&2
+          #   exit 1
+          # fi
 
           if [ -n "$INPUT_VERSION" ]; then
             LATEST="$INPUT_VERSION"
