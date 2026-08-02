@@ -1,0 +1,132 @@
+name: Sync from atlas-action
+
+on:
+  schedule:
+    # Daily at 06:00 UTC.
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'atlas-action release tag to sync (defaults to its latest release)'
+        required: false
+        type: string
+      force:
+        description: 'Sync even if VERSION.txt already matches'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-from-atlas-action
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Sync orb commands from atlas-action
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve atlas-action release to sync
+        id: resolve
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_VERSION: ${{ inputs.version }}
+          FORCE: ${{ inputs.force }}
+        run: |
+          set -euo pipefail
+
+          # The sync pushes HEAD to master, so refuse to run from any other branch
+          # (workflow_dispatch can be triggered from an arbitrary ref).
+          if [ "$GITHUB_REF" != "refs/heads/master" ]; then
+            echo "This workflow must run on master, got $GITHUB_REF." >&2
+            exit 1
+          fi
+
+          if [ -n "$INPUT_VERSION" ]; then
+            LATEST="$INPUT_VERSION"
+          else
+            # /releases/latest skips drafts and prereleases, and ignores the moving "v1" tag.
+            LATEST=$(gh api repos/ariga/atlas-action/releases/latest --jq '.tag_name')
+          fi
+          if [ -z "$LATEST" ] || [ "$LATEST" = "null" ]; then
+            echo "Could not resolve an atlas-action release to sync." >&2
+            exit 1
+          fi
+
+          CURRENT=$(tr -d '[:space:]' < ./VERSION.txt || true)
+          echo "Last synced: ${CURRENT:-<none>}"
+          echo "Candidate:   $LATEST"
+
+          if [ "$CURRENT" = "$LATEST" ] && [ "$FORCE" != "true" ]; then
+            echo "Already up to date with $LATEST. Nothing to sync."
+            echo "sync=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "sync=true" >> "$GITHUB_OUTPUT"
+          fi
+          echo "version=$LATEST" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout atlas-action
+        if: steps.resolve.outputs.sync == 'true'
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          repository: ariga/atlas-action
+          ref: ${{ steps.resolve.outputs.version }}
+          path: atlas-action
+          persist-credentials: false
+
+      - name: Setup Go
+        if: steps.resolve.outputs.sync == 'true'
+        uses: actions/setup-go@7b8cf10d4e4a01d4992d18a89f4d7dc5a3e6d6f4 # v4
+        with:
+          go-version-file: atlas-action/go.mod
+
+      - name: Generate and sync orb commands
+        if: steps.resolve.outputs.sync == 'true'
+        env:
+          VERSION: ${{ steps.resolve.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          make -C atlas-action orb-manifest
+
+          mkdir -p src/commands
+          rsync -av --delete atlas-action/orb/ src/commands/
+          echo "$VERSION" > ./VERSION.txt
+
+          git add src/commands/ ./VERSION.txt
+          if git diff --cached --quiet; then
+            echo "No changes detected in orb commands. Nothing to commit."
+          else
+            git commit -m "src/commands: sync orb commands from atlas-action $VERSION"
+            git push origin HEAD:refs/heads/master
+          fi
+
+          # Tag and push according to atlas-action's own VERSION.txt (not the ./VERSION.txt
+          # written above), matching what cd-sync-orb.yaml did. A vX.Y.Z tag here triggers
+          # orb-tools/publish in CircleCI.
+          ORB_VERSION=$(tr -d '[:space:]' < atlas-action/VERSION.txt)
+          if [ -z "$ORB_VERSION" ]; then
+            echo "atlas-action/VERSION.txt is empty" >&2
+            exit 1
+          fi
+          case "$ORB_VERSION" in
+            v*) ;;
+            *) ORB_VERSION="v$ORB_VERSION" ;;
+          esac
+
+          if git rev-parse -q --verify "refs/tags/$ORB_VERSION" >/dev/null; then
+            echo "Tag $ORB_VERSION already exists on atlas-orb."
+          else
+            git tag -a "$ORB_VERSION" -m "release: $ORB_VERSION"
+            git push origin "refs/tags/$ORB_VERSION"
+          fi
