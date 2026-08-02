@@ -1,0 +1,83 @@
+name: Tag synced release
+
+# Runs once a sync PR opened by sync-from-atlas-action.yaml lands on master.
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - VERSION.txt
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tag-synced-release
+  cancel-in-progress: false
+
+jobs:
+  tag:
+    name: Tag merged sync
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve synced atlas-action release
+        id: synced
+        run: |
+          set -euo pipefail
+
+          if [ "$GITHUB_REF" != "refs/heads/master" ]; then
+            echo "This workflow must run on master, got $GITHUB_REF." >&2
+            exit 1
+          fi
+
+          VERSION=$(tr -d '[:space:]' < ./VERSION.txt)
+          if [ -z "$VERSION" ] || [ "$VERSION" = "v0.0.0" ]; then
+            echo "VERSION.txt does not point at a synced release ('${VERSION:-<empty>}'). Nothing to tag."
+            echo "tag=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=true" >> "$GITHUB_OUTPUT"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout atlas-action
+        if: steps.synced.outputs.tag == 'true'
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          repository: ariga/atlas-action
+          ref: ${{ steps.synced.outputs.version }}
+          path: atlas-action
+          persist-credentials: false
+
+      - name: Tag and push
+        if: steps.synced.outputs.tag == 'true'
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Tag according to atlas-action's own VERSION.txt (not ./VERSION.txt, which holds
+          # the synced release tag), matching what cd-sync-orb.yaml did. A vX.Y.Z tag here
+          # triggers orb-tools/publish in CircleCI.
+          ORB_VERSION=$(tr -d '[:space:]' < atlas-action/VERSION.txt)
+          if [ -z "$ORB_VERSION" ]; then
+            echo "atlas-action/VERSION.txt is empty" >&2
+            exit 1
+          fi
+          case "$ORB_VERSION" in
+            v*) ;;
+            *) ORB_VERSION="v$ORB_VERSION" ;;
+          esac
+
+          if git rev-parse -q --verify "refs/tags/$ORB_VERSION" >/dev/null; then
+            echo "Tag $ORB_VERSION already exists on atlas-orb."
+          else
+            git tag -a "$ORB_VERSION" -m "release: $ORB_VERSION"
+            git push origin "refs/tags/$ORB_VERSION"
+          fi

@@ -18,6 +18,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 concurrency:
   group: sync-from-atlas-action
@@ -42,7 +43,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          # The sync pushes HEAD to master, so refuse to run from any other branch
+          # The sync opens a PR against master, so refuse to run from any other branch
           # (workflow_dispatch can be triggered from an arbitrary ref).
           if [ "$GITHUB_REF" != "refs/heads/master" ]; then
             echo "This workflow must run on master, got $GITHUB_REF." >&2
@@ -88,6 +89,7 @@ jobs:
           go-version-file: atlas-action/go.mod
 
       - name: Generate and sync orb commands
+        id: generate
         if: steps.resolve.outputs.sync == 'true'
         env:
           VERSION: ${{ steps.resolve.outputs.version }}
@@ -106,27 +108,38 @@ jobs:
           git add src/commands/ ./VERSION.txt
           if git diff --cached --quiet; then
             echo "No changes detected in orb commands. Nothing to commit."
-          else
-            git commit -m "src/commands: sync orb commands from atlas-action $VERSION"
-            git push origin HEAD:refs/heads/master
+            echo "committed=false" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
 
-          # Tag and push according to atlas-action's own VERSION.txt (not the ./VERSION.txt
-          # written above), matching what cd-sync-orb.yaml did. A vX.Y.Z tag here triggers
-          # orb-tools/publish in CircleCI.
-          ORB_VERSION=$(tr -d '[:space:]' < atlas-action/VERSION.txt)
-          if [ -z "$ORB_VERSION" ]; then
-            echo "atlas-action/VERSION.txt is empty" >&2
-            exit 1
-          fi
-          case "$ORB_VERSION" in
-            v*) ;;
-            *) ORB_VERSION="v$ORB_VERSION" ;;
-          esac
+          BRANCH="sync/atlas-action-$VERSION"
+          git commit -m "src/commands: sync orb commands from atlas-action $VERSION"
+          # Force-push so re-running the sync for the same version refreshes the branch
+          # instead of failing on a non-fast-forward.
+          git push --force origin "HEAD:refs/heads/$BRANCH"
 
-          if git rev-parse -q --verify "refs/tags/$ORB_VERSION" >/dev/null; then
-            echo "Tag $ORB_VERSION already exists on atlas-orb."
-          else
-            git tag -a "$ORB_VERSION" -m "release: $ORB_VERSION"
-            git push origin "refs/tags/$ORB_VERSION"
+          echo "committed=true" >> "$GITHUB_OUTPUT"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+
+      - name: Open pull request
+        if: steps.generate.outputs.committed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.resolve.outputs.version }}
+          BRANCH: ${{ steps.generate.outputs.branch }}
+        run: |
+          set -euo pipefail
+
+          EXISTING=$(gh pr list --head "$BRANCH" --base master --state open --json url --jq '.[0].url')
+          if [ -n "$EXISTING" ]; then
+            echo "Pull request already open, updated in place: $EXISTING"
+            exit 0
           fi
+
+          gh pr create \
+            --base master \
+            --head "$BRANCH" \
+            --title "src/commands: sync orb commands from atlas-action $VERSION" \
+            --body "Automated sync of \`src/commands/\` from [ariga/atlas-action@$VERSION](https://github.com/ariga/atlas-action/releases/tag/$VERSION).
+
+          Merging this PR tags the repository with the orb version taken from atlas-action's \`VERSION.txt\`, which triggers \`orb-tools/publish\` in CircleCI. See \`.github/workflows/tag-synced-release.yaml\`."
